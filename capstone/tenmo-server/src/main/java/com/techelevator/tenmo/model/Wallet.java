@@ -8,6 +8,12 @@ public class Wallet {
     private int userId;
     private BigDecimal balance;
 
+    public Wallet(int id, int userId, BigDecimal balance) {
+        this.id = id;
+        this.userId = userId;
+        this.balance = balance;
+    }
+
     public int getId() {
         return id;
     }
