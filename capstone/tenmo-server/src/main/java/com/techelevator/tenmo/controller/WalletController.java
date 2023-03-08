@@ -23,7 +23,7 @@ public class WalletController {
     public List<WalletDto> list(@RequestParam(required = false, name = "user-id") Integer userId){
         List<Wallet> wallets = dao.listWallets();
         List<WalletDto> walletDtos = new ArrayList<>();
-        if(userId == null){
+        if(userId != null){
             Wallet wallet = dao.getWalletByUser(userId);
 
             WalletDto walletDto = new WalletDto();
@@ -32,14 +32,16 @@ public class WalletController {
             walletDto.userId=wallet.getUserId();
 
             walletDtos.add(walletDto);
-        }
-        for (Wallet wallet: wallets){
-            WalletDto walletDto = new WalletDto();
-            walletDto.balance=wallet.getBalance();
-            walletDto.id=wallet.getId();
-            walletDto.userId=wallet.getUserId();
+        } else {
+            for (Wallet wallet: wallets){
+                WalletDto walletDto = new WalletDto();
+                walletDto.balance=wallet.getBalance();
+                walletDto.id=wallet.getId();
+                walletDto.userId=wallet.getUserId();
 
-            walletDtos.add(walletDto);
+                walletDtos.add(walletDto);
+            }
+
         }
         return walletDtos;
     }
