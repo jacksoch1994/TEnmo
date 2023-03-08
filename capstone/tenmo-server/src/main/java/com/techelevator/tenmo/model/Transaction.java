@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.model;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -13,14 +14,17 @@ public class Transaction {
     private boolean isRequest;
     private String memo;
     private String status;
-    private LocalDateTime transactionTime;
+    private LocalDateTime transactionTime=LocalDateTime.now();
+
+    public Transaction(){
+    };
 
     public Transaction(
             int id, BigDecimal amount, int senderId,
             int receiverId, boolean isRequest, String memo,
             String status, LocalDateTime transactionTime) {
         this.id = id;
-        this.amount = amount;
+        this.amount = amount.setScale(2,RoundingMode.HALF_UP);
         this.senderId = senderId;
         this.receiverId = receiverId;
         this.isRequest = isRequest;
@@ -57,7 +61,7 @@ public class Transaction {
     }
 
     public void setAmount(BigDecimal amount) {
-        this.amount = amount;
+        this.amount = amount.setScale(2, RoundingMode.HALF_UP);
     }
 
     public int getSenderId() {

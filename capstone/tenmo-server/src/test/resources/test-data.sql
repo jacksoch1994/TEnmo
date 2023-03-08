@@ -49,7 +49,7 @@ INSERT INTO tenmo_user (username,password_hash,role) VALUES ('user2','user2','RO
 INSERT INTO tenmo_user (username,password_hash,role) VALUES ('user3','user3','ROLE_USER');
 INSERT INTO user_wallet (user_id, balance) VALUES ('1001', '123.12');
 INSERT INTO user_wallet (user_id) VALUES ('1002');
-INSERT INTO user_wallet (user_id) VALUES ('1003', '500.23');
+INSERT INTO user_wallet (user_id, balance) VALUES ('1003', '500.23');
 INSERT INTO money_transaction (sender_id, receiver_id, is_request, amount, transaction_time) VALUES ('1001', '1003', 'TRUE', '100.22', '1111-11-11 11:11:11');
 INSERT INTO money_transaction (sender_id, receiver_id, is_request, amount, memo, transaction_time) VALUES ('1002', '1003', 'FALSE', '100.22', 'this is a memo', '1111-11-11 11:11:11');
 INSERT INTO money_transaction (sender_id, receiver_id, is_request, amount, memo, status, transaction_time) VALUES ('1002', '1003', 'FALSE', '100.22', 'this is also a memo', 'accepted', '1111-11-11 11:11:11');

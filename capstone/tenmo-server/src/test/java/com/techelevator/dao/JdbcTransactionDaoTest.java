@@ -20,13 +20,13 @@ public class JdbcTransactionDaoTest extends BaseDaoTests{
     private TransactionDao sut;
 
     private final Transaction TRANS_1 = new Transaction(1, new BigDecimal("100.22"), 1001, 1003,
-            true, "", "pending",
+            true, null, "pending",
             LocalDateTime.of(1111, 11, 11, 11, 11, 11));
     private final Transaction TRANS_2= new Transaction(2, new BigDecimal("100.22"), 1002, 1003,
             false, "this is a memo", "pending",
             LocalDateTime.of(1111, 11, 11, 11, 11, 11));
     private final Transaction TRANS_3 = new Transaction(3, new BigDecimal("100.22"), 1002, 1003,
-            true, "this is also a memo", "accepted",
+            false, "this is also a memo", "accepted",
             LocalDateTime.of(1111, 11, 11, 11, 11, 11));
     private final Transaction TRANS_4 = new Transaction(4, new BigDecimal("100.22"), 1001, 1002,
             false, "this is also a memo", "rejected",
@@ -35,7 +35,7 @@ public class JdbcTransactionDaoTest extends BaseDaoTests{
             false, "this is also a memo", "pending",
             LocalDateTime.of(1111, 11, 11, 11, 11, 11));
     private final Transaction TRANS_6 = new Transaction(6, new BigDecimal("112.03"), 1002, 1003,
-            false, "this is a memo", "rejected",
+            false, "this is a memo", "pending",
             LocalDateTime.of(1111, 11, 11, 11, 11, 11));
     private final Transaction TRANS_7 = new Transaction(7, new BigDecimal("110.22"), 1001, 1003,
             true, "this is a memo", "pending",
@@ -121,18 +121,12 @@ public class JdbcTransactionDaoTest extends BaseDaoTests{
     @Test
     public void createdTransaction_has_id_and_expected_values() {
         Transaction transaction = new Transaction(-1, new BigDecimal("512.00"), 1001, 1002,
-                true, "no", "pending", LocalDateTime.now());
+                true, "no", "pending", LocalDateTime.of(1111,11,11,11,11,11));
         Transaction createdTransaction = sut.createTransaction(transaction);
         int createdId = createdTransaction.getId();
         Assert.assertTrue(createdId>0);
 
         transaction.setId(createdId);
-        Assert.assertEquals(transaction, createdTransaction);
+        Assert.assertEquals(transaction,createdTransaction);
     }
-
-
-
-
-
-
 }
