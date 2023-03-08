@@ -2,9 +2,11 @@ package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Transaction;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 public class JdbcTransactionDao implements TransactionDao{
 
     private final JdbcTemplate jdbcTemplate;

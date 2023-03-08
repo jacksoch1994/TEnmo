@@ -16,6 +16,7 @@ public class JdbcUserDaoTests extends BaseDaoTests {
     protected static final User USER_2 = new User(1002, "user2", "user2", "USER");
     private static final User USER_3 = new User(1003, "user3", "user3", "USER");
 
+
     private JdbcUserDao sut;
 
     @Before

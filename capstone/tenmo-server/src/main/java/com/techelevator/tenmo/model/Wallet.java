@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.model;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 public class Wallet {
 
@@ -36,5 +37,15 @@ public class Wallet {
 
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Wallet wallet = (Wallet) o;
+        return id == wallet.id &&
+                userId==wallet.userId &&
+                Objects.equals(balance, wallet.balance);
     }
 }

@@ -50,13 +50,14 @@ INSERT INTO tenmo_user (username,password_hash,role) VALUES ('user3','user3','RO
 INSERT INTO user_wallet (user_id, balance) VALUES ('1001', '123.12');
 INSERT INTO user_wallet (user_id) VALUES ('1002');
 INSERT INTO user_wallet (user_id) VALUES ('1003', '500.23');
-INSERT INTO money_transaction (sender_id, receiver_id, is_request, amount) VALUES ('1001', '1003', 'TRUE', '100.22');
-INSERT INTO money_transaction (sender_id, receiver_id, is_request, amount, memo) VALUES ('1002', '1003', 'FALSE', '100.22', 'this is a memo');
-INSERT INTO money_transaction (sender_id, receiver_id, is_request, amount, memo, status) VALUES ('1002', '1003', 'FALSE', '100.22', 'this is also a memo', 'accepted');
-INSERT INTO money_transaction (sender_id, receiver_id, is_request, amount, memo, status) VALUES ('1001', '1002', 'FALSE', '100.22', 'this is also a memo', 'rejected');
-INSERT INTO money_transaction (sender_id, receiver_id, is_request, amount, memo, status) VALUES ('1002', '1003', 'FALSE', '100.22', 'this is also a memo', 'pending');
-INSERT INTO money_transaction (sender_id, receiver_id, is_request, amount, memo) VALUES ('1002', '1003', 'FALSE', '112.03', 'this is a memo');
-INSERT INTO money_transaction (sender_id, receiver_id, is_request, amount, memo) VALUES ('1001', '1003', 'TRUE', '110.22', 'this is a memo');
-INSERT INTO money_transaction (sender_id, receiver_id, is_request, amount, memo, status) VALUES ('1003', '1001', 'FALSE', '100.22', 'this is also a memo', 'rejected');
+INSERT INTO money_transaction (sender_id, receiver_id, is_request, amount, transaction_time) VALUES ('1001', '1003', 'TRUE', '100.22', '1111-11-11 11:11:11');
+INSERT INTO money_transaction (sender_id, receiver_id, is_request, amount, memo, transaction_time) VALUES ('1002', '1003', 'FALSE', '100.22', 'this is a memo', '1111-11-11 11:11:11');
+INSERT INTO money_transaction (sender_id, receiver_id, is_request, amount, memo, status, transaction_time) VALUES ('1002', '1003', 'FALSE', '100.22', 'this is also a memo', 'accepted', '1111-11-11 11:11:11');
+INSERT INTO money_transaction (sender_id, receiver_id, is_request, amount, memo, status, transaction_time) VALUES ('1001', '1002', 'FALSE', '100.22', 'this is also a memo', 'rejected', '1111-11-11 11:11:11');
+INSERT INTO money_transaction (sender_id, receiver_id, is_request, amount, memo, status, transaction_time) VALUES ('1002', '1003', 'FALSE', '100.22', 'this is also a memo', 'pending', '1111-11-11 11:11:11');
+INSERT INTO money_transaction (sender_id, receiver_id, is_request, amount, memo, transaction_time) VALUES ('1002', '1003', 'FALSE', '112.03', 'this is a memo', '1111-11-11 11:11:11');
+INSERT INTO money_transaction (sender_id, receiver_id, is_request, amount, memo, transaction_time) VALUES ('1001', '1003', 'TRUE', '110.22', 'this is a memo', '1111-11-11 11:11:11');
+INSERT INTO money_transaction (sender_id, receiver_id, is_request, amount, memo, status, transaction_time) 
+	VALUES ('1003', '1001', 'FALSE', '100.22', 'this is also a memo', 'rejected', '1111-11-11 11:11:11');
 
 COMMIT TRANSACTION;

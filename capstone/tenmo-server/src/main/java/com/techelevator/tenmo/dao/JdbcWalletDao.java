@@ -2,9 +2,11 @@ package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Wallet;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 public class JdbcWalletDao implements WalletDao{
 
     private final JdbcTemplate jdbcTemplate;
