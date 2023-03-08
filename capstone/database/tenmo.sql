@@ -33,13 +33,15 @@ CREATE TABLE money_transaction (
 	, sender_id INT NOT NULL 
 	, receiver_id INT NOT NULL CHECK(receiver_id != sender_id)
 	, status VARCHAR(8) NOT NULL DEFAULT('pending')
-	, is_request BOOLEAN NOT NULL
+	, is_request BOOLEAN NOT NULL --not sure if we will keep this
 	, amount MONEY NOT NULL
+	, memo VARCHAR(250)
+	, transaction_time TIMESTAMP DEFAULT(LOCALTIMESTAMP) NOT NULL
 	
 	, CONSTRAINT fk_sender_user FOREIGN KEY (sender_id) REFERENCES tenmo_user(user_id)
 	, CONSTRAINT fk_receiver_user FOREIGN KEY (receiver_id) REFERENCES tenmo_user(user_id)
 	, CONSTRAINT ck_amount CHECK (amount > money(0.00))
-	, CONSTRAINT ck_statue CHECK (status IN ('pending', 'accepted', 'rejected'))	
+	, CONSTRAINT ck_status CHECK (status IN ('pending', 'accepted', 'rejected'))	
 );
 
 COMMIT;
