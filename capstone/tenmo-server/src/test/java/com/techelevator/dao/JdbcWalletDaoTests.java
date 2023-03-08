@@ -1,7 +1,6 @@
 package com.techelevator.dao;
 
 import com.techelevator.tenmo.dao.JdbcWalletDao;
-import com.techelevator.tenmo.model.User;
 import com.techelevator.tenmo.model.Wallet;
 import org.junit.Assert;
 import org.junit.Before;
