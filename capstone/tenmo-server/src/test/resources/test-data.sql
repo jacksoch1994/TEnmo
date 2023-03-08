@@ -22,10 +22,10 @@ CREATE TABLE tenmo_user (
 CREATE TABLE user_wallet (
 	wallet_id SERIAL NOT NULL PRIMARY KEY
 	, user_id INT NOT NULL 
-	, balance MONEY DEFAULT(1000.00)
+	, balance DECIMAL(1000,2) DEFAULT(1000.00)
 	
 	, CONSTRAINT fk_wallet_user FOREIGN KEY (user_id) REFERENCES tenmo_user(user_id)
-	, CONSTRAINT ck_balance CHECK (balance > money(0.00))
+	, CONSTRAINT ck_balance CHECK (balance > 0)
 );
 
 CREATE TABLE money_transaction (
@@ -34,13 +34,13 @@ CREATE TABLE money_transaction (
 	, receiver_id INT NOT NULL CHECK(receiver_id != sender_id)
 	, status VARCHAR(8) NOT NULL DEFAULT('pending')
 	, is_request BOOLEAN NOT NULL --not sure if we will keep this
-	, amount MONEY NOT NULL
+	, amount DECIMAL(1000,2) NOT NULL
 	, memo VARCHAR(250)
 	, transaction_time TIMESTAMP DEFAULT(LOCALTIMESTAMP) NOT NULL
 	
 	, CONSTRAINT fk_sender_user FOREIGN KEY (sender_id) REFERENCES tenmo_user(user_id)
 	, CONSTRAINT fk_receiver_user FOREIGN KEY (receiver_id) REFERENCES tenmo_user(user_id)
-	, CONSTRAINT ck_amount CHECK (amount > money(0.00))
+	, CONSTRAINT ck_amount CHECK (amount > 0)
 	, CONSTRAINT ck_status CHECK (status IN ('pending', 'accepted', 'rejected'))	
 );
 

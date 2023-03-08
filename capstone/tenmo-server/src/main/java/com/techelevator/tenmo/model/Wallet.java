@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.model;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
 
 public class Wallet {
@@ -12,8 +13,10 @@ public class Wallet {
     public Wallet(int id, int userId, BigDecimal balance) {
         this.id = id;
         this.userId = userId;
-        this.balance = balance;
+        this.balance = balance.setScale(2, RoundingMode.HALF_UP);
     }
+
+    public Wallet() {}
 
     public int getId() {
         return id;
@@ -36,7 +39,7 @@ public class Wallet {
     }
 
     public void setBalance(BigDecimal balance) {
-        this.balance = balance;
+        this.balance = balance.setScale(2, RoundingMode.HALF_UP);;
     }
 
     @Override

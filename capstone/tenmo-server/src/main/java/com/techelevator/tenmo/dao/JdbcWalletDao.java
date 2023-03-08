@@ -25,30 +25,75 @@ public class JdbcWalletDao implements WalletDao{
         SqlRowSet rs = jdbcTemplate.queryForRowSet(sql);
 
         while(rs.next()){
-            Transaction transaction = mapRowToTransaction(rs);
-            transactions.add(transaction);
+            wallets.add(mapRowToWallet(rs));
         }
 
-        return transactions;
+        return wallets;
     }
 
     @Override
     public Wallet getWallet(int walletId) {
-        return null;
+        Wallet wallet = null;
+
+        String sql = "SELECT * FROM user_wallet WHERE wallet_id = ?;";
+        SqlRowSet rows = jdbcTemplate.queryForRowSet(sql, walletId);
+
+        if (rows.next()) {
+            wallet = mapRowToWallet(rows);
+        }
+
+        return wallet;
     }
 
     @Override
     public Wallet getWalletByUser(int userId) {
-        return null;
+        Wallet wallet = null;
+
+        String sql = "SELECT * FROM user_wallet WHERE user_id = ?;";
+        SqlRowSet rows = jdbcTemplate.queryForRowSet(sql, userId);
+
+        if (rows.next()) {
+            wallet = mapRowToWallet(rows);
+        }
+
+        return wallet;
     }
 
     @Override
     public Wallet updateWallet(Wallet updatedWallet, int walletId) {
-        return null;
+
+        if (updatedWallet == null) throw new IllegalArgumentException("Updated Wallet Cannot Be Null.");
+        if (getWallet(walletId) == null) return null;
+
+        String sql = "UPDATE user_wallet " +
+                "SET user_id=?, balance=? " +
+                "WHERE wallet_id = ?;";
+
+        jdbcTemplate.update(sql, updatedWallet.getUserId(), updatedWallet.getBalance(), walletId);
+
+        return getWallet(walletId);
     }
 
     @Override
     public Wallet createWallet(Wallet newWallet, int userId) {
-        return null;
+        if (newWallet == null) throw new IllegalArgumentException("New Wallet cannot be Null.");
+
+        String sql = "INSERT INTO user_wallet(balance, user_id) VALUES (?, ?) RETURNING wallet_id;";
+        Integer id = jdbcTemplate.queryForObject(sql, Integer.class, newWallet.getBalance(), userId);
+
+        if(id!=null){
+            return getWallet(id);
+        } else {
+            return null;
+        }
+    }
+
+    private Wallet mapRowToWallet(SqlRowSet row) {
+        Wallet wallet = new Wallet();
+        wallet.setUserId(row.getInt("user_id"));
+        wallet.setId(row.getInt("wallet_id"));
+        wallet.setBalance(row.getBigDecimal("balance"));
+
+        return wallet;
     }
 }
