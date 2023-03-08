@@ -12,9 +12,9 @@ import java.util.List;
 
 public class JdbcWalletDaoTests extends BaseDaoTests{
 
-    protected static final Wallet WALLET_1 = new Wallet(1,1001, BigDecimal.valueOf(1000.00));
-    protected static final Wallet WALLET_2 = new Wallet(2,1002, BigDecimal.valueOf(500.00));
-    protected static final Wallet WALLET_3 = new Wallet(3,1003, BigDecimal.valueOf(250.00));
+    protected static final Wallet WALLET_1 = new Wallet(1,1001, BigDecimal.valueOf(123.12));
+    protected static final Wallet WALLET_2 = new Wallet(2,1002, BigDecimal.valueOf(1000.00));
+    protected static final Wallet WALLET_3 = new Wallet(3,1003, BigDecimal.valueOf(500.23));
 
     private JdbcWalletDao sut;
 

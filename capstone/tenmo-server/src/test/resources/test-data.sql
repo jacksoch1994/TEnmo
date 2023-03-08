@@ -54,6 +54,7 @@ INSERT INTO money_transaction (sender_id, receiver_id, is_request, amount, trans
 INSERT INTO money_transaction (sender_id, receiver_id, is_request, amount, memo, transaction_time) VALUES ('1002', '1003', 'FALSE', '100.22', 'this is a memo', '1111-11-11 11:11:11');
 INSERT INTO money_transaction (sender_id, receiver_id, is_request, amount, memo, status, transaction_time) VALUES ('1002', '1003', 'FALSE', '100.22', 'this is also a memo', 'accepted', '1111-11-11 11:11:11');
 INSERT INTO money_transaction (sender_id, receiver_id, is_request, amount, memo, status, transaction_time) VALUES ('1001', '1002', 'FALSE', '100.22', 'this is also a memo', 'rejected', '1111-11-11 11:11:11');
+
 INSERT INTO money_transaction (sender_id, receiver_id, is_request, amount, memo, status, transaction_time) VALUES ('1002', '1003', 'FALSE', '100.22', 'this is also a memo', 'pending', '1111-11-11 11:11:11');
 INSERT INTO money_transaction (sender_id, receiver_id, is_request, amount, memo, transaction_time) VALUES ('1002', '1003', 'FALSE', '112.03', 'this is a memo', '1111-11-11 11:11:11');
 INSERT INTO money_transaction (sender_id, receiver_id, is_request, amount, memo, transaction_time) VALUES ('1001', '1003', 'TRUE', '110.22', 'this is a memo', '1111-11-11 11:11:11');

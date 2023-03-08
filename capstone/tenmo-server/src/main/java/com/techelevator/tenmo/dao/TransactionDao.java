@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface TransactionDao {
 
-    List<Transaction> listTransactionsByUserId(int userId);  //list of transactions for one user
-
     List<Transaction> listTransactions();  //list of all transactions for use by admin only
+
+    List<Transaction> listTransactionsByUserId(int userId);  //list of transactions for one user
 
     Transaction getTransaction(int transactionId); //get individual transaction
 
