@@ -5,9 +5,9 @@ import java.math.BigDecimal;
 
 public class WalletDto {
 
-    private int id;
-    private int userId;
+    public int id;
+    public int userId;
     @Positive
-    private BigDecimal balance;
+    public BigDecimal balance;
 
 }
