@@ -5,6 +5,10 @@ import java.math.BigDecimal;
 
 public class WalletDto {
 
+    /*
+    ########################################   Attributes   ##########################################
+     */
+
     public int id;
     public int userId;
     @Positive

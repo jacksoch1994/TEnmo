@@ -8,6 +8,10 @@ import java.util.Set;
 
 public class User {
 
+   /*
+    ########################################   Attributes   ##########################################
+     */
+
    private int id;
    private String username;
    @JsonIgnore // prevent from being sent to client
@@ -15,6 +19,10 @@ public class User {
    @JsonIgnore
    private boolean activated;
    private Set<Authority> authorities = new HashSet<>();
+
+   /*
+    ########################################   Constructors   #########################################
+     */
 
    public User() { }
 
@@ -26,40 +34,49 @@ public class User {
       this.activated = true;
    }
 
+
+   /*
+    ######################################## Getter Methods ##########################################
+     */
+
    public int getId() {
       return id;
-   }
-
-   public void setId(int id) {
-      this.id = id;
    }
 
    public String getUsername() {
       return username;
    }
 
-   public void setUsername(String username) {
-      this.username = username;
-   }
-
    public String getPassword() {
       return password;
-   }
-
-   public void setPassword(String password) {
-      this.password = password;
    }
 
    public boolean isActivated() {
       return activated;
    }
 
-   public void setActivated(boolean activated) {
-      this.activated = activated;
-   }
-
    public Set<Authority> getAuthorities() {
       return authorities;
+   }
+
+   /*
+    ######################################## Setter Methods ##########################################
+     */
+
+   public void setId(int id) {
+      this.id = id;
+   }
+
+   public void setUsername(String username) {
+      this.username = username;
+   }
+
+   public void setPassword(String password) {
+      this.password = password;
+   }
+
+   public void setActivated(boolean activated) {
+      this.activated = activated;
    }
 
    public void setAuthorities(Set<Authority> authorities) {
@@ -72,6 +89,10 @@ public class User {
          this.authorities.add(new Authority("ROLE_" + role));
       }
    }
+
+   /*
+    ######################################  Override Methods  ########################################
+     */
 
    @Override
    public boolean equals(Object o) {

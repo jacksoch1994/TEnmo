@@ -12,11 +12,23 @@ import java.util.List;
 @Component
 public class JdbcWalletDao implements WalletDao{
 
+    /*
+    ########################################   Attributes   ##########################################
+     */
+
     private final JdbcTemplate jdbcTemplate;
+
+    /*
+    ########################################   Constructor   ##########################################
+     */
 
     public JdbcWalletDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
+
+    /*
+    #########################################  DAO Methods  ###########################################
+     */
 
     @Override
     public List<Wallet> listWallets() {
@@ -87,6 +99,10 @@ public class JdbcWalletDao implements WalletDao{
             return null;
         }
     }
+
+    /*
+    ########################################  Helper Methods  ##########################################
+     */
 
     private Wallet mapRowToWallet(SqlRowSet row) {
         Wallet wallet = new Wallet();

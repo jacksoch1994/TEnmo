@@ -13,11 +13,23 @@ import java.util.List;
 @RequestMapping("/wallets")
 public class WalletController {
 
+    /*
+    ########################################   Attributes   ##########################################
+     */
+
     private WalletDao dao;
+
+    /*
+   ########################################   Constructor   ##########################################
+    */
 
     public WalletController(WalletDao dao) {
         this.dao = dao;
     }
+
+    /*
+   ########################################  API Endpoints  ##########################################
+    */
 
     @GetMapping
     public List<WalletDto> list(@RequestParam(required = false, name = "user-id") Integer userId){

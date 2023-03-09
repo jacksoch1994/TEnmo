@@ -4,19 +4,39 @@ import java.util.Objects;
 
 public class Authority {
 
+   /*
+    ########################################   Attributes   ##########################################
+     */
+
    private String name;
+
+   /*
+    ######################################## Getter Methods ##########################################
+     */
 
    public String getName() {
       return name;
    }
 
+   /*
+    ######################################## Setter Methods ##########################################
+     */
+
    public void setName(String name) {
       this.name = name;
    }
 
+   /*
+    ########################################   Constructor   ##########################################
+     */
+
    public Authority(String name) {
       this.name = name;
    }
+
+   /*
+    ######################################  Override Methods  ########################################
+     */
 
    @Override
    public boolean equals(Object o) {

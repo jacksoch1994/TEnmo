@@ -16,11 +16,23 @@ import java.util.List;
 @Component
 public class JdbcUserDao implements UserDao {
 
+    /*
+    ########################################   Attributes   ##########################################
+     */
+
     private final JdbcTemplate jdbcTemplate;
+
+    /*
+    ########################################   Constructor   ##########################################
+     */
 
     public JdbcUserDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
+
+    /*
+    #########################################  DAO Methods  ###########################################
+     */
 
     @Override
     public int findIdByUsername(String username) {
@@ -83,6 +95,10 @@ public class JdbcUserDao implements UserDao {
 
         return (newUserId != null);
     }
+
+    /*
+    ########################################  Helper Methods  ##########################################
+     */
 
     private User mapRowToUser(SqlRowSet rs) {
         User user = new User();

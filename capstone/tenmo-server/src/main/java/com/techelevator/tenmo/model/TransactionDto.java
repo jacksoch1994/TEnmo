@@ -9,6 +9,10 @@ import java.time.LocalDateTime;
 
 public class TransactionDto {
 
+    /*
+    ########################################   Attributes   ##########################################
+     */
+
     private int id;
     @Positive
     private BigDecimal amount;

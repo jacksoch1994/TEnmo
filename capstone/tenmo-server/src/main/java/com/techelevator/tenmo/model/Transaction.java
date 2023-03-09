@@ -7,6 +7,10 @@ import java.util.Objects;
 
 public class Transaction {
 
+    /*
+    ########################################   Attributes   ##########################################
+     */
+
     private int id;
     private BigDecimal amount;
     private int senderId;
@@ -16,8 +20,11 @@ public class Transaction {
     private String status;
     private LocalDateTime transactionTime=LocalDateTime.now();
 
-    public Transaction(){
-    };
+    /*
+    #######################################   Constructors   #########################################
+     */
+
+    public Transaction(){}
 
     public Transaction(
             int id, BigDecimal amount, int senderId,
@@ -33,6 +40,81 @@ public class Transaction {
         this.transactionTime = transactionTime;
     }
 
+    /*
+    ######################################## Getter Methods ##########################################
+     */
+    public int getId() {
+        return id;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public int getSenderId() {
+        return senderId;
+    }
+
+    public int getReceiverId() {
+        return receiverId;
+    }
+
+    public boolean isRequest() {
+        return isRequest;
+    }
+
+    public String getMemo() {
+        return memo;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public LocalDateTime getTransactionTime() {
+        return transactionTime;
+    }
+
+    /*
+    ######################################## Setter Methods ##########################################
+     */
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public void setSenderId(int senderId) {
+        this.senderId = senderId;
+    }
+
+    public void setReceiverId(int receiverId) {
+        this.receiverId = receiverId;
+    }
+
+    public void setRequest(boolean request) {
+        isRequest = request;
+    }
+
+    public void setMemo(String memo) {
+        this.memo = memo;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setTransactionTime(LocalDateTime transactionTime) {
+        this.transactionTime = transactionTime;
+    }
+
+    /*
+    ######################################  Override Methods  ########################################
+     */
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -46,69 +128,5 @@ public class Transaction {
                 Objects.equals(memo, transaction.memo) &&
                 Objects.equals(status, transaction.status) &&
                 Objects.equals(transactionTime, transaction.transactionTime);
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount.setScale(2, RoundingMode.HALF_UP);
-    }
-
-    public int getSenderId() {
-        return senderId;
-    }
-
-    public void setSenderId(int senderId) {
-        this.senderId = senderId;
-    }
-
-    public int getReceiverId() {
-        return receiverId;
-    }
-
-    public void setReceiverId(int receiverId) {
-        this.receiverId = receiverId;
-    }
-
-    public boolean isRequest() {
-        return isRequest;
-    }
-
-    public void setRequest(boolean request) {
-        isRequest = request;
-    }
-
-    public String getMemo() {
-        return memo;
-    }
-
-    public void setMemo(String memo) {
-        this.memo = memo;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public LocalDateTime getTransactionTime() {
-        return transactionTime;
-    }
-
-    public void setTransactionTime(LocalDateTime transactionTime) {
-        this.transactionTime = transactionTime;
     }
 }

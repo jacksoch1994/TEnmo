@@ -6,9 +6,17 @@ import java.util.Objects;
 
 public class Wallet {
 
+    /*
+    ########################################   Attributes   ##########################################
+     */
+
     private int id;
     private int userId;
     private BigDecimal balance;
+
+    /*
+    #######################################   Constructors   #########################################
+     */
 
     public Wallet(int id, int userId, BigDecimal balance) {
         this.id = id;
@@ -18,29 +26,41 @@ public class Wallet {
 
     public Wallet() {}
 
+    /*
+    ######################################## Getter Methods ##########################################
+     */
+
     public int getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public int getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
     public BigDecimal getBalance() {
         return balance;
     }
 
-    public void setBalance(BigDecimal balance) {
-        this.balance = balance.setScale(2, RoundingMode.HALF_UP);;
+    /*
+    ######################################## Setter Methods ##########################################
+     */
+
+    public void setId(int id) {
+        this.id = id;
     }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    /*
+    ######################################  Override Methods  ########################################
+     */
 
     @Override
     public boolean equals(Object o) {

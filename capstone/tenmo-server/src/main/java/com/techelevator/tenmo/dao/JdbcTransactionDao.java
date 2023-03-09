@@ -11,11 +11,23 @@ import java.util.List;
 @Component
 public class JdbcTransactionDao implements TransactionDao{
 
+    /*
+    ########################################   Attributes   ##########################################
+     */
+
     private final JdbcTemplate jdbcTemplate;
+
+    /*
+    ########################################   Constructor   ##########################################
+     */
 
     public JdbcTransactionDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
+
+    /*
+    #########################################  DAO Methods  ###########################################
+     */
 
     @Override
     public List<Transaction> listTransactionsByUserId(int userId) {
@@ -103,6 +115,10 @@ public class JdbcTransactionDao implements TransactionDao{
             return null;
         }
     }
+
+    /*
+    ########################################  Helper Methods  ##########################################
+     */
 
     private Transaction mapRowToTransaction(SqlRowSet rs){
         Transaction transaction = new Transaction();

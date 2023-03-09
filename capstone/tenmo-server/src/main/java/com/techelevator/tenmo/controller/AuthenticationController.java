@@ -27,15 +27,27 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 public class AuthenticationController {
 
+    /*
+    ########################################   Attributes   ##########################################
+     */
+
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final UserDao userDao;
+
+    /*
+   ########################################   Constructor   ##########################################
+    */
 
     public AuthenticationController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder, UserDao userDao) {
         this.tokenProvider = tokenProvider;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.userDao = userDao;
     }
+
+    /*
+   ########################################  API Endpoints  ##########################################
+    */
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public LoginResponseDto login(@Valid @RequestBody LoginDto loginDto) {

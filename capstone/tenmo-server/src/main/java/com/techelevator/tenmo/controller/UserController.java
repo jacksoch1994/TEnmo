@@ -10,11 +10,23 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 public class UserController {
+    /*
+    ########################################   Attributes   ##########################################
+     */
 
     private UserDao dao;
+
+    /*
+   ########################################   Constructor   ##########################################
+    */
+
     public UserController(UserDao dao){ //constructor
         this.dao = dao;
     }
+
+    /*
+   ########################################  API Endpoints  ##########################################
+    */
 
     @GetMapping
     public List<User> findAll(@RequestParam(required = false) String username){
