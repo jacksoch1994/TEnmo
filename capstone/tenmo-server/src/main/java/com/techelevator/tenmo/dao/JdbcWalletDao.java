@@ -2,10 +2,13 @@ package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Transaction;
 import com.techelevator.tenmo.model.Wallet;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,6 +87,23 @@ public class JdbcWalletDao implements WalletDao{
         jdbcTemplate.update(sql, updatedWallet.getUserId(), updatedWallet.getBalance(), walletId);
 
         return getWallet(walletId);
+    }
+
+    @Override
+    public boolean transferBalance(int sendingWalletId, int receivingWalletId, BigDecimal transferAmount) {
+        String sql = "UPDATE user_wallet \n" +
+                "SET balance = balance - ?\n" +
+                "WHERE wallet_id = ?;\n" +
+                "UPDATE user_wallet \n" +
+                "SET balance = balance + ?\n" +
+                "WHERE wallet_id = ?;\n";
+
+        try {
+            return jdbcTemplate.update(sql, transferAmount, sendingWalletId, transferAmount, receivingWalletId) > 0;
+        } catch (DataAccessException e) {
+            return false;
+        }
+
     }
 
     @Override

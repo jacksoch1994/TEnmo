@@ -2,6 +2,7 @@ package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Wallet;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface WalletDao {
@@ -38,6 +39,16 @@ public interface WalletDao {
      * @return
      */
     Wallet updateWallet(Wallet updatedWallet, int walletId);  //uses wallet ID
+
+    /**
+     * Transfers balance between two wallets.
+     *
+     * @param sendingWalletId the id of the Wallet to withdraw balance from.
+     * @param receivingWalletId the id of the Wallet to deposit balance into.
+     * @return a boolean indicating a successful operation
+     */
+    boolean transferBalance(int sendingWalletId, int receivingWalletId, BigDecimal transferAmount);
+
 
 
     /**
