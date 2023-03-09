@@ -3,21 +3,21 @@ package com.techelevator.tenmo.controller;
 import com.techelevator.tenmo.dao.TransactionDao;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.dao.WalletDao;
-import com.techelevator.tenmo.model.Transaction;
-import com.techelevator.tenmo.model.TransactionDto;
-import com.techelevator.tenmo.model.TransactionStatusDto;
-import com.techelevator.tenmo.model.Wallet;
+import com.techelevator.tenmo.model.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/transactions")
+@PreAuthorize("hasAnyRole('USER','ADMIN')")
 public class TransactionController {
 
     /*
@@ -43,15 +43,23 @@ public class TransactionController {
     */
 
     @GetMapping
-    public List<TransactionDto> list(@RequestParam(required = false, name = "user-id") Integer userId ) {
+    public List<TransactionDto> list(@RequestParam(required = false, name = "user-id") Integer userId , Principal principal) {
+
+        Integer currentUserId=userDao.findIdByUsername(principal.getName());
 
         List<TransactionDto> response = new ArrayList<>();
         List<Transaction> transactions;
 
         //Check to see if UserId is provided
         if (userId != null) {
+            if(!userId.equals(currentUserId) && !userDao.getUserById(currentUserId).getAuthorities().contains(new Authority("ROLE_ADMIN"))){
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only access your transactions.");
+            }
             transactions = transDao.listTransactionsByUserId(userId);
         } else {
+            if(!userDao.getUserById(currentUserId).getAuthorities().contains(new Authority("ROLE_ADMIN"))){
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only access your transactions.");
+            }
             transactions = transDao.listTransactions();
         }
 
@@ -63,26 +71,45 @@ public class TransactionController {
     }
 
     @GetMapping("/{id}")
-    public TransactionDto get(@PathVariable int id) {
+    public TransactionDto get(@PathVariable int id, Principal principal) {
+        int currentUserId = userDao.findIdByUsername(principal.getName());
+
         Transaction transaction = transDao.getTransaction(id);
         if (transaction == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown Transaction");
         }
+        if((transaction.getReceiverId()!=currentUserId||transaction.getSenderId()!=currentUserId) && !userDao.getUserById(currentUserId).getAuthorities().contains(new Authority("ROLE_ADMIN"))){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only access your transactions.");
+        }
+
         return mapTransactionToDto(transaction);
     }
 
     @PostMapping
-    public TransactionDto create(@RequestBody @Valid TransactionDto dto) {
+    public TransactionDto create(@RequestBody @Valid CreateTransactionDto dto, Principal principal) {
 
-        if (userDao.getUserById(dto.getReceiverId()) == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown User for Receiver");
-        } else if (userDao.getUserById(dto.getSenderId()) == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown User for Sender");
+        int currentUserId = userDao.findIdByUsername(principal.getName());
+
+        if(userDao.getUserById(dto.getTargetUserId())==null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "That user does not exist");
         }
 
-        Transaction createdTransaction = transDao.createTransaction(mapDtoToTransaction(dto));
+        if(currentUserId == dto.getTargetUserId()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot send money to yourself");
+        }
 
-        return mapTransactionToDto(createdTransaction);
+        Transaction transaction = null;
+        if(dto.getType().equals("request")){
+            transaction = new Transaction(1, dto.getAmount(), dto.getTargetUserId(), currentUserId, true, dto.getMemo(), "pending", LocalDateTime.now());
+        } else if (dto.getType().equals("payment")){
+            transaction = new Transaction(1, dto.getAmount(), currentUserId, dto.getTargetUserId(), false, dto.getMemo(), "accepted", LocalDateTime.now());
+            walletDao.transferBalance(walletDao.getWalletByUser(currentUserId).getId(), walletDao.getWalletByUser(dto.getTargetUserId()).getId(), dto.getAmount());
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Type must be either \"request\" or \"payment\"");
+        }
+
+        Transaction newTransaction = transDao.createTransaction(transaction);
+        return mapTransactionToDto(newTransaction);
     }
 
     @PatchMapping("/{id}")
@@ -126,7 +153,7 @@ public class TransactionController {
             transDao.updateTransaction(id, transaction);
         }
 
-        return get(id);
+        return mapTransactionToDto(transDao.getTransaction(id));
 
     }
 

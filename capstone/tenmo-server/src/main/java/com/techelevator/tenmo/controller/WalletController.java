@@ -1,30 +1,39 @@
 package com.techelevator.tenmo.controller;
 
+import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.dao.WalletDao;
-import com.techelevator.tenmo.model.User;
+import com.techelevator.tenmo.model.Authority;
 import com.techelevator.tenmo.model.Wallet;
 import com.techelevator.tenmo.model.WalletDto;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/wallets")
+@PreAuthorize("isAuthenticated()")
 public class WalletController {
 
     /*
     ########################################   Attributes   ##########################################
      */
 
-    private WalletDao dao;
+    private WalletDao walletDao;
+    private UserDao userDao;
 
     /*
    ########################################   Constructor   ##########################################
     */
 
-    public WalletController(WalletDao dao) {
-        this.dao = dao;
+    public WalletController(WalletDao walletDao, UserDao userDao) {
+        this.walletDao = walletDao;
+        this.userDao=userDao;
     }
 
     /*
@@ -32,11 +41,12 @@ public class WalletController {
     */
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public List<WalletDto> list(@RequestParam(required = false, name = "user-id") Integer userId){
-        List<Wallet> wallets = dao.listWallets();
+        List<Wallet> wallets = walletDao.listWallets();
         List<WalletDto> walletDtos = new ArrayList<>();
         if(userId != null){
-            Wallet wallet = dao.getWalletByUser(userId);
+            Wallet wallet = walletDao.getWalletByUser(userId);
 
             WalletDto walletDto = new WalletDto();
             walletDto.balance=wallet.getBalance();
@@ -59,8 +69,16 @@ public class WalletController {
     }
 
     @GetMapping (path="/{id}")
-    public WalletDto get(@PathVariable int id){
-        Wallet wallet = dao.getWallet(id);
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    public WalletDto get(@PathVariable int id, Principal principal){
+
+        Wallet wallet = walletDao.getWallet(id);
+        int currentUserId=userDao.findIdByUsername(principal.getName());
+
+        if(wallet.getUserId()!=currentUserId && !userDao.getUserById(currentUserId).getAuthorities().contains(new Authority("ROLE_ADMIN"))){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only access your wallet.");
+        }
+
         WalletDto walletDto = new WalletDto();
         walletDto.balance=wallet.getBalance();
         walletDto.id=wallet.getId();
