@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -102,7 +103,13 @@ public class TransactionController {
         if(dto.getType().equals("request")){
             transaction = new Transaction(1, dto.getAmount(), dto.getTargetUserId(), currentUserId, true, dto.getMemo(), "pending", LocalDateTime.now());
         } else if (dto.getType().equals("payment")){
+
             transaction = new Transaction(1, dto.getAmount(), currentUserId, dto.getTargetUserId(), false, dto.getMemo(), "accepted", LocalDateTime.now());
+            if (!canMakeWalletTransfer(walletDao.getWalletByUser(currentUserId).getId(), walletDao.getWalletByUser(dto.getTargetUserId()).getId(), dto.getAmount())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The wallet to transfer funds from has an " +
+                        "insufficient balance to make payment.");
+            }
+
             walletDao.transferBalance(walletDao.getWalletByUser(currentUserId).getId(), walletDao.getWalletByUser(dto.getTargetUserId()).getId(), dto.getAmount());
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Type must be either \"request\" or \"payment\"");
@@ -138,9 +145,13 @@ public class TransactionController {
             int senderId = transaction.getSenderId();
             int receiverId = transaction.getReceiverId();
 
-
             int senderWalletId = walletDao.getWalletByUser(senderId).getId();
             int receiverWalletId = walletDao.getWalletByUser(receiverId).getId();
+
+            if (!canMakeWalletTransfer(senderWalletId, receiverWalletId, transaction.getAmount())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The wallet to transfer funds from has an " +
+                        "insufficient balance to make payment.");
+            }
 
             walletDao.transferBalance(senderWalletId, receiverWalletId, transaction.getAmount());
 
@@ -158,18 +169,22 @@ public class TransactionController {
     }
 
 
+    private boolean canMakeWalletTransfer(int senderWalletId, int receiverWalletId, BigDecimal amount) {
+        Wallet sender = walletDao.getWallet(senderWalletId);
+        Wallet receiver = walletDao.getWallet(receiverWalletId);
+
+        if (sender == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown wallet for Sending Wallet.");
+        } else if (receiver == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown wallet for Receiving Wallet.");
+        }
+
+        //Make sure sender has money in their account to make transfer
+        return sender.getBalance().compareTo(amount) >= 0;
 
 
 
-
-
-
-
-
-
-
-
-
+    }
 
 
 

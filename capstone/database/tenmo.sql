@@ -20,7 +20,7 @@ CREATE TABLE user_wallet (
 	, balance DECIMAL(1000,2) DEFAULT(1000.00)
 	
 	, CONSTRAINT fk_wallet_user FOREIGN KEY (user_id) REFERENCES tenmo_user(user_id)
-	, CONSTRAINT ck_balance CHECK (balance > 0)
+	, CONSTRAINT ck_balance CHECK (balance >= 0)
 );
 
 CREATE TABLE money_transaction (
