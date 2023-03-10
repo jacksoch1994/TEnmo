@@ -69,6 +69,7 @@ public class TenmoCLI {
                     viewPendingRequests();
                     break;
                 case (5):
+                    acceptOrRejectPendingRequest();
                     break;
                 case (6):
                     break;
@@ -129,6 +130,7 @@ public class TenmoCLI {
         transactionDao.requestPayment(targetUserId, amount, memo);
     }
 
+    //view only requests for money sent to me
     private void viewPendingRequests(){
         User me = userDao.findOwnUser();
         Transaction[] transactions = transactionDao.getOwnTransactions(me.getId());
@@ -141,6 +143,20 @@ public class TenmoCLI {
                 System.out.printf("Transaction ID: %s   Transaction amount: $%.2f   Requester ID: %s    Memo: %s\n",id,amount,senderId,memo);
             }
         }
+    }
+
+    //choose whether to accept or reject a request sent to me
+    private void acceptOrRejectPendingRequest(){
+        int transactionId = consoleService.promptForSelection("What transaction ID do you want to accept/reject?");
+        String newStatus=null;
+        //did it this way because it's probably easier for a user to understand
+        int statusRequest = consoleService.promptForSelection("Do you want to accept(1) or reject(2) the request?");
+        if(statusRequest==1){
+            newStatus = "accepted";
+        } else if (statusRequest==2){
+            newStatus = "rejected";
+        } //should probably cover other cases
+        transactionDao.acceptOrRejectPendingTransaction(transactionId,newStatus);
     }
 
 

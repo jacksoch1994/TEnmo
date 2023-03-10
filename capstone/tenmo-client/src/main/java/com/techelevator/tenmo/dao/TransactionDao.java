@@ -3,6 +3,7 @@ package com.techelevator.tenmo.dao;
 import com.techelevator.tenmo.model.CreateTransactionDto;
 import com.techelevator.tenmo.model.RegisterUser;
 import com.techelevator.tenmo.model.Transaction;
+import com.techelevator.tenmo.model.UpdateTransactionDto;
 import org.springframework.http.*;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
@@ -79,6 +80,31 @@ public class TransactionDao {
             successful = true;
 
         } catch (RestClientResponseException | ResourceAccessException e) {
+            System.out.println(e.getMessage());
+//            BasicLogger.log(e.getMessage());
+        }
+        return successful;
+    }
+
+    public boolean acceptOrRejectPendingTransaction(int transactionToUpdate, String newStatus){
+        UpdateTransactionDto updateTransactionDto = new UpdateTransactionDto();
+        updateTransactionDto.setStatus(newStatus);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(authToken);
+        HttpEntity<UpdateTransactionDto> entity = new HttpEntity<>(updateTransactionDto, headers);
+
+        boolean successful = false;
+
+        try {
+            restTemplate.exchange(
+                    API_BASE_TRANSACTION_URL + transactionToUpdate,
+                    HttpMethod.PATCH,
+                    entity,
+                    Void.class);
+            successful = true;
+        }catch (RestClientResponseException | ResourceAccessException e) {
             System.out.println(e.getMessage());
 //            BasicLogger.log(e.getMessage());
         }
