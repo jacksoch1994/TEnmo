@@ -104,7 +104,8 @@ public class TransactionController {
             transaction = new Transaction(1, dto.getAmount(), dto.getTargetUserId(), currentUserId, true, dto.getMemo(), "pending", LocalDateTime.now());
         } else if (dto.getType().equals("payment")){
 
-            transaction = new Transaction(1, dto.getAmount(), currentUserId, dto.getTargetUserId(), false, dto.getMemo(), "accepted", LocalDateTime.now());
+            transaction = new Transaction(1, dto.getAmount(), currentUserId, dto.getTargetUserId(), false,
+                    dto.getMemo(), "accepted", LocalDateTime.now());
             if (!canMakeWalletTransfer(walletDao.getWalletByUser(currentUserId).getId(), walletDao.getWalletByUser(dto.getTargetUserId()).getId(), dto.getAmount())) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The wallet to transfer funds from has an " +
                         "insufficient balance to make payment.");
@@ -121,7 +122,9 @@ public class TransactionController {
 
     @PatchMapping("/{id}")
     public TransactionDto confirmRequest(@PathVariable int id, @Valid @RequestBody TransactionStatusDto status) {
+
         Transaction transaction = transDao.getTransaction(id);
+
         //Check to see if Transaction exists
         if (transaction == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown Transaction");
@@ -133,6 +136,7 @@ public class TransactionController {
                     "is not in the \"pending\" status.");
         }
 
+        //Check to see if incoming DTO has a valid value in the status field
         if (!status.getStatus().equals("accepted") && !status.getStatus().equals("rejected")) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid value for \"status\". " +
                     "Status must be either \"accepted\" or \"rejected\".");
@@ -145,16 +149,20 @@ public class TransactionController {
             int senderId = transaction.getSenderId();
             int receiverId = transaction.getReceiverId();
 
+            //Get wallet Ids for each User
             int senderWalletId = walletDao.getWalletByUser(senderId).getId();
             int receiverWalletId = walletDao.getWalletByUser(receiverId).getId();
 
+            //Check to see if sending wallet has sufficient funds
             if (!canMakeWalletTransfer(senderWalletId, receiverWalletId, transaction.getAmount())) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The wallet to transfer funds from has an " +
                         "insufficient balance to make payment.");
             }
 
+            //Call DAO transfer balance method
             walletDao.transferBalance(senderWalletId, receiverWalletId, transaction.getAmount());
 
+            //Update original transaction
             transaction.setStatus("accepted");
             transDao.updateTransaction(id, transaction);
 
@@ -173,6 +181,7 @@ public class TransactionController {
         Wallet sender = walletDao.getWallet(senderWalletId);
         Wallet receiver = walletDao.getWallet(receiverWalletId);
 
+        //If either wallet does not exists, throw an error
         if (sender == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown wallet for Sending Wallet.");
         } else if (receiver == null) {
@@ -181,11 +190,11 @@ public class TransactionController {
 
         //Make sure sender has money in their account to make transfer
         return sender.getBalance().compareTo(amount) >= 0;
-
-
-
     }
 
+    /*
+    ########################################  Helper Methods  ##########################################
+     */
 
 
     private TransactionDto mapTransactionToDto(Transaction transaction) {

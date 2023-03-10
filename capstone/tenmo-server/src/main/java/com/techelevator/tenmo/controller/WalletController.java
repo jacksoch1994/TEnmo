@@ -41,27 +41,18 @@ public class WalletController {
     */
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')") //TODO Normal user should be able to view their own balance
     public List<WalletDto> list(@RequestParam(required = false, name = "user-id") Integer userId){
+
         List<Wallet> wallets = walletDao.listWallets();
         List<WalletDto> walletDtos = new ArrayList<>();
+
         if(userId != null){
             Wallet wallet = walletDao.getWalletByUser(userId);
-
-            WalletDto walletDto = new WalletDto();
-            walletDto.balance=wallet.getBalance();
-            walletDto.id=wallet.getId();
-            walletDto.userId=wallet.getUserId();
-
-            walletDtos.add(walletDto);
+            walletDtos.add(mapWalletToDto(wallet));
         } else {
             for (Wallet wallet: wallets){
-                WalletDto walletDto = new WalletDto();
-                walletDto.balance=wallet.getBalance();
-                walletDto.id=wallet.getId();
-                walletDto.userId=wallet.getUserId();
-
-                walletDtos.add(walletDto);
+                walletDtos.add(mapWalletToDto(wallet));
             }
 
         }
@@ -79,12 +70,23 @@ public class WalletController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only access your wallet.");
         }
 
+        return mapWalletToDto(wallet);
+    }
+
+    /*
+    ########################################  Helper Methods  ##########################################
+     */
+
+    //Helper Function to map a Wallet object to a WalletDto
+    private WalletDto mapWalletToDto(Wallet wallet) {
+
         WalletDto walletDto = new WalletDto();
-        walletDto.balance=wallet.getBalance();
-        walletDto.id=wallet.getId();
-        walletDto.userId=wallet.getUserId();
+        walletDto.setBalance(wallet.getBalance());
+        walletDto.setId(wallet.getId());
+        walletDto.setUserId(wallet.getUserId());
 
         return walletDto;
     }
+
 
 }

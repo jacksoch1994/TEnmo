@@ -43,6 +43,7 @@ public class Transaction {
     /*
     ######################################## Getter Methods ##########################################
      */
+
     public int getId() {
         return id;
     }

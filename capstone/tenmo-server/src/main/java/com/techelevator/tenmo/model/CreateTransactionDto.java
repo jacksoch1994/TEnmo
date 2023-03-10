@@ -8,38 +8,9 @@ import java.math.BigDecimal;
 
 public class CreateTransactionDto {
 
-    public int getTargetUserId() {
-        return targetUserId;
-    }
-
-    public void setTargetUserId(int targetUserId) {
-        this.targetUserId = targetUserId;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-    }
-
-    public String getMemo() {
-        return memo;
-    }
-
-    public void setMemo(String memo) {
-        this.memo = memo;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
+    /*
+    ########################################   Attributes   ##########################################
+     */
 
     @JsonProperty("target-user")
     @Positive
@@ -50,5 +21,53 @@ public class CreateTransactionDto {
     @JsonProperty("transaction-type")
     @NotBlank
     private String type;
+
+    /*
+    ########################################   Constructor   ##########################################
+     */
+
+    public CreateTransactionDto(){}
+
+    /*
+    ######################################## Getter Methods ##########################################
+     */
+    public int getTargetUserId() {
+        return targetUserId;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public String getMemo() {
+        return memo;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    /*
+    ######################################## Setter Methods ##########################################
+     */
+
+    public void setTargetUserId(int targetUserId) {
+        this.targetUserId = targetUserId;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public void setMemo(String memo) {
+        this.memo = memo;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+
+
 
 }

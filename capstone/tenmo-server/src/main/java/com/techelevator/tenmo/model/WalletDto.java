@@ -9,9 +9,40 @@ public class WalletDto {
     ########################################   Attributes   ##########################################
      */
 
-    public int id;
-    public int userId;
+    private int id;
+    private int userId;
     @Positive
-    public BigDecimal balance;
+    private BigDecimal balance;
 
+    /*
+    ######################################## Getter Methods ##########################################
+     */
+
+    public int getId() {
+        return id;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
+    /*
+    ######################################## Setter Methods ##########################################
+     */
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
+    }
 }
