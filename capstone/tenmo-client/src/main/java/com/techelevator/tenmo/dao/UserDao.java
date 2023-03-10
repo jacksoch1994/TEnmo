@@ -47,6 +47,20 @@ public class UserDao {
         return user;
     }
 
+    public User findOwnUser(){
+        User user = null;
+        try{
+            ResponseEntity<User> response = restTemplate.exchange(API_BASE_USER_URL + "me",
+                    HttpMethod.GET, makeAuthEntity(), User.class);
+            user = response.getBody();
+        }catch (RestClientResponseException | ResourceAccessException e) {
+//                BasicLogger.log(e.getMessage());
+            System.out.println(e.getMessage());
+        }
+        return user;
+
+    }
+
     /**
      * Returns an HttpEntity with the `Authorization: Bearer:` header
      */

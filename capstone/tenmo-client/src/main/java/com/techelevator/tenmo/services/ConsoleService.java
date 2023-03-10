@@ -65,6 +65,27 @@ public class ConsoleService {
         return output;
     }
 
+    public String promptForStringSelection(String prompt) {
+        System.out.print(prompt);
+
+        String output = in.nextLine();
+        return output;
+    }
+
+    public BigDecimal promptForMoneySelection(String prompt){
+        System.out.println(prompt);
+
+        String output = in.nextLine();
+
+        try{
+            BigDecimal bigDecimal = new BigDecimal(output);
+            return bigDecimal;
+        } catch (NumberFormatException e){
+            System.out.println("String not converted to Big Decimal Correctly");
+        }
+        return BigDecimal.ZERO;
+    }
+
     public void display(String message) {
         System.out.println(message);
     }

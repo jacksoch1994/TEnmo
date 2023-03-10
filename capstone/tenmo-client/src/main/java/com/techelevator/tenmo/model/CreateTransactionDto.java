@@ -22,9 +22,16 @@ public class CreateTransactionDto {
 
     public CreateTransactionDto(){}
 
+    public CreateTransactionDto(int targetUserId, BigDecimal amount, String memo, String type) {
+        this.targetUserId = targetUserId;
+        this.amount = amount;
+        this.memo = memo;
+        this.type = type;
+    }
+
     /*
-    ######################################## Getter Methods ##########################################
-     */
+        ######################################## Getter Methods ##########################################
+         */
     public int getTargetUserId() {
         return targetUserId;
     }

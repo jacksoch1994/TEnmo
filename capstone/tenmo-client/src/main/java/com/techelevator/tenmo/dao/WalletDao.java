@@ -21,7 +21,6 @@ public class WalletDao {
         authToken = token;
     }
 
-
     public Wallet getUserWallet() {
         Wallet wallet = null;
 
@@ -35,48 +34,6 @@ public class WalletDao {
         }
         return wallet;
     }
-
-//    public Wallet[] findAll() {
-//        Wallet[] wallets = null;
-//
-//        try {
-//            ResponseEntity<Wallet[]> response = restTemplate.exchange(API_BASE_WALLET_URL,
-//                    HttpMethod.GET, makeAuthEntity(), Wallet[].class);
-//            wallets = response.getBody();
-//        } catch (RestClientResponseException | ResourceAccessException e) {
-////                BasicLogger.log(e.getMessage());
-//            System.out.println("something went wrong");
-//        }
-//        return wallets;
-//    }
-
-//    public Wallet[] findAll(int userId) {
-//        Wallet[] wallets = null;
-//
-//        try {
-//            ResponseEntity<Wallet[]> response = restTemplate.exchange(API_BASE_WALLET_URL+userId,
-//                    HttpMethod.GET, makeAuthEntity(), Wallet[].class);
-//            wallets = response.getBody();
-//        } catch (RestClientResponseException | ResourceAccessException e) {
-////                BasicLogger.log(e.getMessage());
-//            System.out.println("something went wrong");
-//        }
-//        return wallets;
-//    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     /**
      * Returns an HttpEntity with the `Authorization: Bearer:` header

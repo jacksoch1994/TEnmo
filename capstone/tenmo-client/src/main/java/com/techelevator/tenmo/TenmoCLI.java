@@ -1,17 +1,25 @@
 package com.techelevator.tenmo;
 
 import com.techelevator.tenmo.dao.LoginDao;
+import com.techelevator.tenmo.dao.TransactionDao;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.dao.WalletDao;
+import com.techelevator.tenmo.model.Transaction;
 import com.techelevator.tenmo.model.User;
 import com.techelevator.tenmo.services.ConsoleService;
 import org.apache.commons.logging.Log;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TenmoCLI {
     ConsoleService consoleService = new ConsoleService();
     UserDao userDao = new UserDao();
     WalletDao walletDao = new WalletDao();
     LoginDao loginDao = new LoginDao();
+    TransactionDao transactionDao = new TransactionDao();
 
     public static void main(String[] args) {
         TenmoCLI cli = new TenmoCLI();
@@ -43,18 +51,22 @@ public class TenmoCLI {
 
     private void mainMenu() {
         int selection = -1;
+        consoleService.balanceDisplay(walletDao.getUserWallet().getBalance());
         while (selection != 0) {
-            consoleService.balanceDisplay(walletDao.getUserWallet().getBalance());
             consoleService.mainMenu();
             selection = consoleService.promptForSelection("Please select an item from the list above:");
             switch (selection) {
                 case (1):
+                    consoleService.balanceDisplay(walletDao.getUserWallet().getBalance());
                     break;
                 case (2):
+                    makePaymentMenu();
                     break;
                 case (3):
+                    requestPaymentMenu();
                     break;
                 case (4):
+                    viewPendingRequests();
                     break;
                 case (5):
                     break;
@@ -77,6 +89,7 @@ public class TenmoCLI {
         if (token != null) {
             userDao.setAuthToken(token);
             walletDao.setAuthToken(token);
+            transactionDao.setAuthToken(token);
             mainMenu();
         } else {
             consoleService.display("Invalid Credentials. Returning to Login Screen.");
@@ -93,5 +106,42 @@ public class TenmoCLI {
             consoleService.display("Failed to create new account. Returning to login menu.");
         }
     }
+
+    private void makePaymentMenu(){
+        User[] users = userDao.findAll();
+        for(User user: users){
+            System.out.printf("ID: %s    Name: %s\n", user.getId(), user.getUsername());
+        }
+        int targetUserId = consoleService.promptForSelection("What is the ID of the person you want to pay?");
+        BigDecimal amount = consoleService.promptForMoneySelection("How much do you want to pay?");
+        String memo = consoleService.promptForStringSelection("What memo (if any) do you want to give?");
+        transactionDao.makePayment(targetUserId, amount, memo);
+    }
+
+    private void requestPaymentMenu(){
+        User[] users = userDao.findAll();
+        for(User user: users){
+            System.out.printf("ID: %s   Name: %s\n", user.getId(), user.getUsername());
+        }
+        int targetUserId = consoleService.promptForSelection("What is the ID of the person you are requesting from?");
+        BigDecimal amount = consoleService.promptForMoneySelection("How much do you want to request?");
+        String memo = consoleService.promptForStringSelection("What memo (if any) do you want to give?");
+        transactionDao.requestPayment(targetUserId, amount, memo);
+    }
+
+    private void viewPendingRequests(){
+        User me = userDao.findOwnUser();
+        Transaction[] transactions = transactionDao.getOwnTransactions(me.getId());
+        for(Transaction transaction: transactions){
+            if (transaction.getSenderId()==me.getId()){
+                int id = transaction.getId();
+                BigDecimal amount = transaction.getAmount();
+                int senderId = transaction.getSenderId();
+                String memo = transaction.getMemo();
+                System.out.printf("Transaction ID: %s   Transaction amount: $%.2f   Requester ID: %s    Memo: %s\n",id,amount,senderId,memo);
+            }
+        }
+    }
+
 
 }
