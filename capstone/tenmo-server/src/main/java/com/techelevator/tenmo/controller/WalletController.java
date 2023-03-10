@@ -41,16 +41,25 @@ public class WalletController {
     */
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')") //TODO Normal user should be able to view their own balance
-    public List<WalletDto> list(@RequestParam(required = false, name = "user-id") Integer userId){
+    public List<WalletDto> list(@RequestParam(required = false, name = "user-id") Integer userId, Principal principal){
 
         List<Wallet> wallets = walletDao.listWallets();
         List<WalletDto> walletDtos = new ArrayList<>();
+        int currentUserId = userDao.findIdByUsername(principal.getName());
 
         if(userId != null){
+            if (userId!=currentUserId && !isAdmin(principal)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only access your wallet.");
+            }
             Wallet wallet = walletDao.getWalletByUser(userId);
             walletDtos.add(mapWalletToDto(wallet));
+
         } else {
+
+            if (!isAdmin(principal)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only access your wallet.");
+            }
+
             for (Wallet wallet: wallets){
                 walletDtos.add(mapWalletToDto(wallet));
             }
@@ -60,13 +69,13 @@ public class WalletController {
     }
 
     @GetMapping (path="/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     public WalletDto get(@PathVariable int id, Principal principal){
 
         Wallet wallet = walletDao.getWallet(id);
-        int currentUserId=userDao.findIdByUsername(principal.getName());
 
-        if(wallet.getUserId()!=currentUserId && !userDao.getUserById(currentUserId).getAuthorities().contains(new Authority("ROLE_ADMIN"))){
+        int currentUserId = userDao.findIdByUsername(principal.getName());
+
+        if(wallet.getUserId()!=currentUserId && !isAdmin(principal)){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only access your wallet.");
         }
 
@@ -86,6 +95,11 @@ public class WalletController {
         walletDto.setUserId(wallet.getUserId());
 
         return walletDto;
+    }
+
+    private boolean isAdmin(Principal principal) {
+        int currentUserId=userDao.findIdByUsername(principal.getName());
+        return userDao.getUserById(currentUserId).getAuthorities().contains(new Authority("ROLE_ADMIN"));
     }
 
 

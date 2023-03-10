@@ -44,21 +44,36 @@ public class TransactionController {
     */
 
     @GetMapping
-    public List<TransactionDto> list(@RequestParam(required = false, name = "user-id") Integer userId , Principal principal) {
+    public List<TransactionDto> list(@RequestParam(required = false, name = "user-id") Integer userId,
+                                     @RequestParam(required = false, name = "status") String status,
+                                     Principal principal) {
 
         Integer currentUserId=userDao.findIdByUsername(principal.getName());
+        boolean isAdmin = isAdmin(principal);
 
         List<TransactionDto> response = new ArrayList<>();
         List<Transaction> transactions;
 
         //Check to see if UserId is provided
-        if (userId != null) {
-            if(!userId.equals(currentUserId) && !userDao.getUserById(currentUserId).getAuthorities().contains(new Authority("ROLE_ADMIN"))){
+        if (status != null && userId != null) {
+            if(!userId.equals(currentUserId) && !isAdmin){
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only access your transactions.");
+            }
+
+            transactions = transDao.listTransactionsByUserIdAndStatus(userId, status);
+        } else if (status != null) {
+            if(!isAdmin){
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only access your transactions.");
+            }
+            transactions = transDao.listTransactionsByStatus(status);
+
+        } else if (userId != null) {
+            if(!userId.equals(currentUserId) && !isAdmin){
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only access your transactions.");
             }
             transactions = transDao.listTransactionsByUserId(userId);
         } else {
-            if(!userDao.getUserById(currentUserId).getAuthorities().contains(new Authority("ROLE_ADMIN"))){
+            if(!isAdmin){
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only access your transactions.");
             }
             transactions = transDao.listTransactions();
@@ -73,45 +88,59 @@ public class TransactionController {
 
     @GetMapping("/{id}")
     public TransactionDto get(@PathVariable int id, Principal principal) {
-        int currentUserId = userDao.findIdByUsername(principal.getName());
 
         Transaction transaction = transDao.getTransaction(id);
+
         if (transaction == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown Transaction");
         }
-        if((transaction.getReceiverId()!=currentUserId||transaction.getSenderId()!=currentUserId) && !userDao.getUserById(currentUserId).getAuthorities().contains(new Authority("ROLE_ADMIN"))){
+
+        if(transactionBelongsToUser(transaction, principal) && !isAdmin(principal)){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only access your transactions.");
         }
-
         return mapTransactionToDto(transaction);
     }
+
 
     @PostMapping
     public TransactionDto create(@RequestBody @Valid CreateTransactionDto dto, Principal principal) {
 
         int currentUserId = userDao.findIdByUsername(principal.getName());
 
-        if(userDao.getUserById(dto.getTargetUserId())==null){
+        //Check to see if target user exists
+        if(userDao.getUserById(dto.getTargetUserId()) == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "That user does not exist");
         }
 
+        //Check to see if current user is trying to pay themself.
         if(currentUserId == dto.getTargetUserId()){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot send money to yourself");
         }
 
         Transaction transaction = null;
+
         if(dto.getType().equals("request")){
-            transaction = new Transaction(1, dto.getAmount(), dto.getTargetUserId(), currentUserId, true, dto.getMemo(), "pending", LocalDateTime.now());
+
+            transaction = new Transaction(1, dto.getAmount(), dto.getTargetUserId(), currentUserId,
+                    true, dto.getMemo(), "pending", LocalDateTime.now());
+
         } else if (dto.getType().equals("payment")){
 
             transaction = new Transaction(1, dto.getAmount(), currentUserId, dto.getTargetUserId(), false,
                     dto.getMemo(), "accepted", LocalDateTime.now());
-            if (!canMakeWalletTransfer(walletDao.getWalletByUser(currentUserId).getId(), walletDao.getWalletByUser(dto.getTargetUserId()).getId(), dto.getAmount())) {
+
+            int userWalletId = walletDao.getWalletByUser(currentUserId).getId();
+            int targetWalletId = walletDao.getWalletByUser(dto.getTargetUserId()).getId();
+
+            if (!canMakeWalletTransfer(userWalletId, targetWalletId, dto.getAmount())) {
+
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The wallet to transfer funds from has an " +
                         "insufficient balance to make payment.");
+
             }
 
-            walletDao.transferBalance(walletDao.getWalletByUser(currentUserId).getId(), walletDao.getWalletByUser(dto.getTargetUserId()).getId(), dto.getAmount());
+            walletDao.transferBalance(userWalletId, targetWalletId, dto.getAmount());
+
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Type must be either \"request\" or \"payment\"");
         }
@@ -212,19 +241,14 @@ public class TransactionController {
         return dto;
     }
 
-    private Transaction mapDtoToTransaction(TransactionDto dto) {
-        Transaction transaction = new Transaction();
+    private boolean isAdmin(Principal principal) {
+        int currentUserId=userDao.findIdByUsername(principal.getName());
+        return userDao.getUserById(currentUserId).getAuthorities().contains(new Authority("ROLE_ADMIN"));
+    }
 
-        transaction.setId(dto.getId());
-        transaction.setAmount(dto.getAmount());
-        transaction.setMemo(dto.getMemo());
-        transaction.setReceiverId(dto.getReceiverId());
-        transaction.setSenderId(dto.getSenderId());
-        transaction.setRequest(dto.isRequest());
-        transaction.setStatus(dto.getStatus());
-        transaction.setTransactionTime(dto.getTransactionTime());
-
-        return transaction;
+    private boolean transactionBelongsToUser(Transaction transaction, Principal principal) {
+        int currentUserId=userDao.findIdByUsername(principal.getName());
+        return transaction.getReceiverId() == currentUserId || transaction.getSenderId() == currentUserId;
     }
 
 }

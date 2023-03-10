@@ -45,6 +45,34 @@ public class JdbcTransactionDao implements TransactionDao{
     }
 
     @Override
+    public List<Transaction> listTransactionsByStatus(String status) {
+        List<Transaction> transactions = new ArrayList<>();
+        String sql = "SELECT * FROM money_transaction WHERE status = ?;";
+        SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, status);
+
+        while(rs.next()){
+            Transaction transaction = mapRowToTransaction(rs);
+            transactions.add(transaction);
+        }
+
+        return transactions;
+    }
+
+    @Override
+    public List<Transaction> listTransactionsByUserIdAndStatus(int userId, String status) {
+        List<Transaction> transactions = new ArrayList<>();
+        String sql = "SELECT * FROM money_transaction WHERE (sender_id = ? OR receiver_id = ?) AND status = ?;";
+        SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, userId, userId, status);
+
+        while(rs.next()){
+            Transaction transaction = mapRowToTransaction(rs);
+            transactions.add(transaction);
+        }
+
+        return transactions;
+    }
+
+    @Override
     public List<Transaction> listTransactions() {
         List<Transaction> transactions = new ArrayList<>();
         String sql = "SELECT * FROM money_transaction;";
