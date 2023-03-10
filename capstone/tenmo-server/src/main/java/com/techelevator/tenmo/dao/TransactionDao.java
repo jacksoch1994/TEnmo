@@ -21,6 +21,10 @@ public interface TransactionDao {
      */
     List<Transaction> listTransactionsByUserId(int userId);  //list of transactions for one user
 
+    List<Transaction> listTransactionsByStatus(String status);
+
+    List<Transaction> listTransactionsByUserIdAndStatus(int userId, String status);
+
     /**
      * Obtains a single Transaction based on the provided id. Returns null if no Transaction with the provided
      * transactionId exists.
