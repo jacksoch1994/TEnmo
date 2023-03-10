@@ -14,6 +14,12 @@ public class LoginDto {
     private String username;
     private String password;
 
+    /*
+    ########################################   Constructor   ##########################################
+    */
+
+    public LoginDto() {};
+
    /*
     ######################################## Getter Methods ##########################################
     */

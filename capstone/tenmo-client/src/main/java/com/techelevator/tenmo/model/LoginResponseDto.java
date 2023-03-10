@@ -23,6 +23,10 @@ public class LoginResponseDto {
         this.user = user;
     }
 
+    public LoginResponseDto() {
+
+    }
+
     /*
     ######################################## Getter Methods ##########################################
     */

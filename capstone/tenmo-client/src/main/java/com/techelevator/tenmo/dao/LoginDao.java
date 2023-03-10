@@ -2,6 +2,7 @@ package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.LoginDto;
 import com.techelevator.tenmo.model.LoginResponseDto;
+import com.techelevator.tenmo.model.RegisterUser;
 import org.springframework.http.*;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
@@ -15,9 +16,11 @@ public class LoginDao {
         LoginDto loginDto = new LoginDto();
         loginDto.setUsername(username);
         loginDto.setPassword(password);
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<LoginDto> entity = new HttpEntity<>(loginDto, headers);
+
         String token = null;
         try {
             ResponseEntity<LoginResponseDto> response = restTemplate.exchange(
@@ -35,4 +38,33 @@ public class LoginDao {
         }
         return token;
     }
+
+    public boolean register(String username, String password) {
+        RegisterUser newUser = new RegisterUser();
+        newUser.setUsername(username);
+        newUser.setPassword(password);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<RegisterUser> entity = new HttpEntity<>(newUser, headers);
+
+        boolean successful = false;
+
+        try {
+            restTemplate.exchange(
+                    API_BASE_URL + "register",
+                    HttpMethod.POST,
+                    entity,
+                    Void.class);
+
+            successful = true;
+
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            System.out.println("something went wrong");
+//            BasicLogger.log(e.getMessage());
+        }
+
+        return successful;
+    }
+
 }

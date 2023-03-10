@@ -82,6 +82,14 @@ public class WalletController {
         return mapWalletToDto(wallet);
     }
 
+    @GetMapping("/me")
+    public WalletDto userWallet(Principal principal) {
+        int currentUserId = userDao.findIdByUsername(principal.getName());
+        Wallet userWallet = walletDao.getWalletByUser(currentUserId);
+        //Todo check for null in userWallet
+        return mapWalletToDto(userWallet);
+    }
+
     /*
     ########################################  Helper Methods  ##########################################
      */
