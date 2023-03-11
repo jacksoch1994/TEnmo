@@ -66,12 +66,13 @@ public class TenmoCLI {
                     requestPaymentMenu();
                     break;
                 case (4):
-                    viewPendingRequests();
-                    break;
-                case (5):
                     acceptOrRejectPendingRequest();
                     break;
-                case (6):
+//                case (5):
+//                    acceptOrRejectPendingRequest();
+//                    break;
+                case (5):
+                    viewTransactionHistory();
                     break;
                 case (0):
                     break;
@@ -131,7 +132,7 @@ public class TenmoCLI {
     }
 
     //view only requests for money sent to me
-    private void viewPendingRequests(){
+    private Transaction[] viewPendingRequests(){
         User me = userDao.findOwnUser();
         Transaction[] transactions = transactionDao.getOwnTransactions(me.getId());
         for(Transaction transaction: transactions){
@@ -143,20 +144,50 @@ public class TenmoCLI {
                 System.out.printf("Transaction ID: %s   Transaction amount: $%.2f   Requester ID: %s    Memo: %s\n",id,amount,senderId,memo);
             }
         }
+        return transactions;
     }
 
     //choose whether to accept or reject a request sent to me
     private void acceptOrRejectPendingRequest(){
-        int transactionId = consoleService.promptForSelection("What transaction ID do you want to accept/reject?");
-        String newStatus=null;
-        //did it this way because it's probably easier for a user to understand
-        int statusRequest = consoleService.promptForSelection("Do you want to accept(1) or reject(2) the request?");
-        if(statusRequest==1){
-            newStatus = "accepted";
-        } else if (statusRequest==2){
-            newStatus = "rejected";
-        } //should probably cover other cases
-        transactionDao.acceptOrRejectPendingTransaction(transactionId,newStatus);
+        Transaction[] transactions= viewPendingRequests();
+        if(transactions.length>0) {
+            int transactionId = consoleService.promptForSelection("What transaction ID do you want to accept/reject?");
+            boolean islooping = true;
+            while (islooping) {
+                String newStatus = null;
+                //did it this way because it's probably easier for a user to understand
+                System.out.println();
+                int statusRequest = consoleService.promptForSelection("Do you want to accept(1) or reject(2) the request?");
+                if (statusRequest == 1) {
+                    newStatus = "accepted";
+                    transactionDao.acceptOrRejectPendingTransaction(transactionId, newStatus);
+                    islooping = false;
+                } else if (statusRequest == 2) {
+                    newStatus = "rejected";
+                    transactionDao.acceptOrRejectPendingTransaction(transactionId, newStatus);
+                    islooping = false;
+                } else {
+                    System.out.println();
+                    System.out.println("Please enter (1) for accept or (2) for reject");
+                }
+            }
+        } else {
+            System.out.println();
+            System.out.println("You have no pending requests");
+        }
+    }
+
+    private void viewTransactionHistory(){
+        User me = userDao.findOwnUser();
+        Transaction[] transactions = transactionDao.getTransactionHistory(me.getId());
+        for(Transaction transaction: transactions){
+            int id = transaction.getId();
+            BigDecimal amount = transaction.getAmount();
+            int senderId = transaction.getSenderId();
+            int receiverId = transaction.getReceiverId();
+            String memo = transaction.getMemo();
+            System.out.printf("Transaction ID: %s   Transaction amount: $%.2f   Sender ID: %s    ReceiverID: %s    Memo: %s\n",id,amount,senderId,receiverId,memo);
+        }
     }
 
 

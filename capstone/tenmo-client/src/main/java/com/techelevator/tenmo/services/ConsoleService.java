@@ -38,9 +38,9 @@ public class ConsoleService {
         System.out.println("1: View Balance");
         System.out.println("2: Make Payment");
         System.out.println("3: Request Payment");
-        System.out.println("4: View Pending Requests");
-        System.out.println("5: Approve/Reject Pending Requests");
-        System.out.println("6: View Transaction History");
+//        System.out.println("4: View Pending Requests");
+        System.out.println("4: Approve/Reject Pending Requests");
+        System.out.println("5: View Transaction History");
         System.out.println("0: Logout");
         System.out.println();
     }
@@ -66,6 +66,7 @@ public class ConsoleService {
     }
 
     public String promptForStringSelection(String prompt) {
+        System.out.println();
         System.out.print(prompt);
 
         String output = in.nextLine();

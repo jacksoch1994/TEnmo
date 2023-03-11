@@ -149,7 +149,7 @@ public class TransactionController {
         return mapTransactionToDto(newTransaction);
     }
 
-    @PatchMapping("/{id}")
+    @PutMapping("/{id}")
     public TransactionDto confirmRequest(@PathVariable int id, @Valid @RequestBody TransactionStatusDto status) {
 
         Transaction transaction = transDao.getTransaction(id);

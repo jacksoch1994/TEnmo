@@ -22,6 +22,22 @@ public class TransactionDao {
         authToken = token;
     }
 
+    public Transaction[] getTransactionHistory(int ownId){
+        ResponseEntity<Transaction[]> transactions=null;
+        try {
+            transactions = restTemplate.exchange(
+                    API_BASE_TRANSACTION_URL + "?user-id=" + ownId,
+                    HttpMethod.GET,
+                    makeAuthEntity(),
+                    Transaction[].class);
+        } catch (RestClientResponseException | ResourceAccessException e){
+            System.out.println(e.getMessage());
+        }
+        return transactions.getBody();
+    }
+
+
+    //only pending transactions
     public Transaction[] getOwnTransactions(int ownId){
         ResponseEntity<Transaction[]> transactions=null;
         try {
@@ -100,7 +116,7 @@ public class TransactionDao {
         try {
             restTemplate.exchange(
                     API_BASE_TRANSACTION_URL + transactionToUpdate,
-                    HttpMethod.PATCH,
+                    HttpMethod.PUT,
                     entity,
                     Void.class);
             successful = true;
