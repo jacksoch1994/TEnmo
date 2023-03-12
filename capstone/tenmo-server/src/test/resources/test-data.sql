@@ -44,9 +44,9 @@ CREATE TABLE money_transaction (
 	, CONSTRAINT ck_status CHECK (status IN ('pending', 'accepted', 'rejected'))	
 );
 
-INSERT INTO tenmo_user (username,password_hash,role) VALUES ('user1','user1','ROLE_USER'); -- 1001
-INSERT INTO tenmo_user (username,password_hash,role) VALUES ('user2','user2','ROLE_USER'); -- 1002
-INSERT INTO tenmo_user (username,password_hash,role) VALUES ('user3','user3','ROLE_USER');
+INSERT INTO tenmo_user (username,password_hash,role) VALUES ('user1','user1','USER'); -- 1001
+INSERT INTO tenmo_user (username,password_hash,role) VALUES ('user2','user2','USER'); -- 1002
+INSERT INTO tenmo_user (username,password_hash,role) VALUES ('user3','user3','USER');
 INSERT INTO user_wallet (user_id, balance) VALUES ('1001', '123.12');
 INSERT INTO user_wallet (user_id) VALUES ('1002');
 INSERT INTO user_wallet (user_id, balance) VALUES ('1003', '500.23');

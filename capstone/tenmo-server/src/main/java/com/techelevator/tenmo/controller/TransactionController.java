@@ -51,31 +51,23 @@ public class TransactionController {
         Integer currentUserId=userDao.findIdByUsername(principal.getName());
         boolean isAdmin = isAdmin(principal);
 
+        //Check to see if user has permission to access other's transactions. A user can only use list Transactions if
+        //they specify their own Transaction UserID unless they are an admin.
+        if ((userId != null && !userId.equals(currentUserId) && !isAdmin) || (userId == null && !isAdmin)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action: Cannot view other users' Transactions.");
+        }
+
         List<TransactionDto> response = new ArrayList<>();
         List<Transaction> transactions;
 
-        //Check to see if UserId is provided
+        //Check to see if UserId and/or status is provided
         if (status != null && userId != null) {
-            if(!userId.equals(currentUserId) && !isAdmin){
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only access your transactions.");
-            }
-
             transactions = transDao.listTransactionsByUserIdAndStatus(userId, status);
         } else if (status != null) {
-            if(!isAdmin){
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only access your transactions.");
-            }
             transactions = transDao.listTransactionsByStatus(status);
-
         } else if (userId != null) {
-            if(!userId.equals(currentUserId) && !isAdmin){
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only access your transactions.");
-            }
             transactions = transDao.listTransactionsByUserId(userId);
         } else {
-            if(!isAdmin){
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only access your transactions.");
-            }
             transactions = transDao.listTransactions();
         }
 
@@ -91,66 +83,65 @@ public class TransactionController {
 
         Transaction transaction = transDao.getTransaction(id);
 
-        if (transaction == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown Transaction");
+        //If Transaction does not exist, throw error.
+        if (transaction == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown Transaction");
+
+        //Only allow the user to view the Transaction if they are the sender/receiever, or an admin
+        if(transactionBelongsToUser(transaction, principal) && !isAdmin(principal)){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action: Cannot view other users' Transactions.");
         }
 
-        if(transactionBelongsToUser(transaction, principal) && !isAdmin(principal)){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only access your transactions.");
-        }
         return mapTransactionToDto(transaction);
     }
 
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public TransactionDto create(@RequestBody @Valid CreateTransactionDto dto, Principal principal) {
 
         int currentUserId = userDao.findIdByUsername(principal.getName());
 
         //Check to see if target user exists
         if(userDao.getUserById(dto.getTargetUserId()) == null){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "That user does not exist");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown User.");
         }
 
         //Check to see if current user is trying to pay themself.
         if(currentUserId == dto.getTargetUserId()){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot send money to yourself");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Target user for transfer cannot match sending user.");
         }
 
-        Transaction transaction = null;
+        Transaction transaction = new Transaction(-1, dto.getAmount(), -1, -1,
+                true, dto.getMemo(), "pending", LocalDateTime.now());
 
         if(dto.getType().equals("request")){
-
-            transaction = new Transaction(1, dto.getAmount(), dto.getTargetUserId(), currentUserId,
-                    true, dto.getMemo(), "pending", LocalDateTime.now());
+            //Create Update Fields on Transaction as needed for request
+            transaction.setSenderId(dto.getTargetUserId());
+            transaction.setReceiverId(currentUserId);
 
         } else if (dto.getType().equals("payment")){
 
-            transaction = new Transaction(1, dto.getAmount(), currentUserId, dto.getTargetUserId(), false,
-                    dto.getMemo(), "accepted", LocalDateTime.now());
+            //Create Update Fields on Transaction as needed for payment
+            transaction.setReceiverId(dto.getTargetUserId());
+            transaction.setSenderId(currentUserId);
+            transaction.setRequest(false);
 
-            int userWalletId = walletDao.getWalletByUser(currentUserId).getId();
-            int targetWalletId = walletDao.getWalletByUser(dto.getTargetUserId()).getId();
-
-            if (!canMakeWalletTransfer(userWalletId, targetWalletId, dto.getAmount())) {
-
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The wallet to transfer funds from has an " +
-                        "insufficient balance to make payment.");
-
-            }
-
-            walletDao.transferBalance(userWalletId, targetWalletId, dto.getAmount());
+            //Send to helper method to accept transaction and perform money transfer
+            transaction = acceptTransaction(transaction);
 
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Type must be either \"request\" or \"payment\"");
         }
 
+        //Receive newly created Transaction from DAO and return
         Transaction newTransaction = transDao.createTransaction(transaction);
         return mapTransactionToDto(newTransaction);
     }
 
     @PutMapping("/{id}")
-    public TransactionDto confirmRequest(@PathVariable int id, @Valid @RequestBody TransactionStatusDto status) {
+    public TransactionDto confirmRequest(@PathVariable int id,
+                                         @Valid @RequestBody TransactionStatusDto status,
+                                         Principal principal) {
 
         Transaction transaction = transDao.getTransaction(id);
 
@@ -159,9 +150,14 @@ public class TransactionController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown Transaction");
         }
 
+        //Check to see if user is the receiver for this Transaction.
+        if (transaction.getReceiverId() != userDao.findIdByUsername(principal.getName())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unauthorized. Cannot confirm another user's incoming request.");
+        }
+
         //Check to see if Transaction is in valid status
         if (!transaction.getStatus().equals("pending")) {
-            throw new ResponseStatusException(HttpStatus.METHOD_NOT_ALLOWED, "Cannot update a request that " +
+            throw new ResponseStatusException(HttpStatus.METHOD_NOT_ALLOWED, "Cannot update a transaction that " +
                     "is not in the \"pending\" status.");
         }
 
@@ -171,40 +167,24 @@ public class TransactionController {
                     "Status must be either \"accepted\" or \"rejected\".");
         }
 
+        //Update Transaction Time to be the current date.
         transaction.setTransactionTime(LocalDateTime.now());
 
         if (status.getStatus().equals("accepted")) {
-            //Get user Ids
-            int senderId = transaction.getSenderId();
-            int receiverId = transaction.getReceiverId();
-
-            //Get wallet Ids for each User
-            int senderWalletId = walletDao.getWalletByUser(senderId).getId();
-            int receiverWalletId = walletDao.getWalletByUser(receiverId).getId();
-
-            //Check to see if sending wallet has sufficient funds
-            if (!canMakeWalletTransfer(senderWalletId, receiverWalletId, transaction.getAmount())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The wallet to transfer funds from has an " +
-                        "insufficient balance to make payment.");
-            }
-
-            //Call DAO transfer balance method
-            walletDao.transferBalance(senderWalletId, receiverWalletId, transaction.getAmount());
-
-            //Update original transaction
-            transaction.setStatus("accepted");
-            transDao.updateTransaction(id, transaction);
+            transaction = acceptTransaction(transaction);
 
         } else if (status.getStatus().equals("rejected")) {
-
             transaction.setStatus("rejected");
-            transDao.updateTransaction(id, transaction);
         }
 
+        //Return Updated Transaction
+        transDao.updateTransaction(id, transaction);
         return mapTransactionToDto(transDao.getTransaction(id));
-
     }
 
+    /*
+    ########################################  Helper Methods  ##########################################
+     */
 
     private boolean canMakeWalletTransfer(int senderWalletId, int receiverWalletId, BigDecimal amount) {
         Wallet sender = walletDao.getWallet(senderWalletId);
@@ -220,11 +200,6 @@ public class TransactionController {
         //Make sure sender has money in their account to make transfer
         return sender.getBalance().compareTo(amount) >= 0;
     }
-
-    /*
-    ########################################  Helper Methods  ##########################################
-     */
-
 
     private TransactionDto mapTransactionToDto(Transaction transaction) {
         TransactionDto dto = new TransactionDto();
@@ -249,6 +224,31 @@ public class TransactionController {
     private boolean transactionBelongsToUser(Transaction transaction, Principal principal) {
         int currentUserId=userDao.findIdByUsername(principal.getName());
         return transaction.getReceiverId() == currentUserId || transaction.getSenderId() == currentUserId;
+    }
+
+    private Transaction acceptTransaction(Transaction transaction) {
+
+        //Get user Ids
+        int senderId = transaction.getSenderId();
+        int receiverId = transaction.getReceiverId();
+
+        //Get wallet Ids for each User
+        int senderWalletId = walletDao.getWalletByUser(senderId).getId();
+        int receiverWalletId = walletDao.getWalletByUser(receiverId).getId();
+
+        //Check to see if sending wallet has sufficient funds
+        if (!canMakeWalletTransfer(senderWalletId, receiverWalletId, transaction.getAmount())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The wallet to transfer funds from has an " +
+                    "insufficient balance to make payment.");
+        }
+
+        //Call DAO transfer balance method
+        walletDao.transferBalance(senderWalletId, receiverWalletId, transaction.getAmount());
+
+        //Update original transaction
+        transaction.setStatus("accepted");
+
+        return transaction;
     }
 
 }

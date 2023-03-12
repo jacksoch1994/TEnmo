@@ -36,7 +36,7 @@ public interface WalletDao {
      *
      * @param updatedWallet a Wallet object containing updated values.
      * @param walletId the id of the Wallet to update.
-     * @return
+     * @return the Updated Wallet
      */
     Wallet updateWallet(Wallet updatedWallet, int walletId);  //uses wallet ID
 
@@ -48,7 +48,6 @@ public interface WalletDao {
      * @return a boolean indicating a successful operation
      */
     boolean transferBalance(int sendingWalletId, int receivingWalletId, BigDecimal transferAmount);
-
 
 
     /**

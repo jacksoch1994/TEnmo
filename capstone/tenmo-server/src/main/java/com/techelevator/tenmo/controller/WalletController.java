@@ -47,24 +47,23 @@ public class WalletController {
         List<WalletDto> walletDtos = new ArrayList<>();
         int currentUserId = userDao.findIdByUsername(principal.getName());
 
+        if ((userId != null && userId!=currentUserId && !isAdmin(principal)) || (userId == null && !isAdmin(principal))) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized. Cannot access other users' resource.");
+        }
+
+
         if(userId != null){
-            if (userId!=currentUserId && !isAdmin(principal)) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only access your wallet.");
-            }
+            if (userDao.getUserById(userId) == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown User.");
+
             Wallet wallet = walletDao.getWalletByUser(userId);
             walletDtos.add(mapWalletToDto(wallet));
 
         } else {
-
-            if (!isAdmin(principal)) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only access your wallet.");
-            }
-
             for (Wallet wallet: wallets){
                 walletDtos.add(mapWalletToDto(wallet));
             }
-
         }
+
         return walletDtos;
     }
 
@@ -72,11 +71,10 @@ public class WalletController {
     public WalletDto get(@PathVariable int id, Principal principal){
 
         Wallet wallet = walletDao.getWallet(id);
-
         int currentUserId = userDao.findIdByUsername(principal.getName());
 
         if(wallet.getUserId()!=currentUserId && !isAdmin(principal)){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only access your wallet.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized. Cannot access other users' resource.");
         }
 
         return mapWalletToDto(wallet);

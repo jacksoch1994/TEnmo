@@ -98,6 +98,12 @@ public class JdbcWalletDao implements WalletDao{
                 "SET balance = balance + ?\n" +
                 "WHERE wallet_id = ?;\n";
 
+        //If not enough money in sending wallet or wither wallet is null, return false
+        if (getWallet(sendingWalletId) == null || getWallet(receivingWalletId) == null
+                || getWallet(sendingWalletId).getBalance().compareTo(transferAmount) < 0) {
+            return false;
+        }
+
         try {
             return jdbcTemplate.update(sql, transferAmount, sendingWalletId, transferAmount, receivingWalletId) > 0;
         } catch (DataAccessException e) {
