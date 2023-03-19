@@ -29,7 +29,7 @@ public class TenmoCLI {
     /**
      * Run Tenmo CLI. Display initial Main Menu for login and process user input.
      */
-    public void run(){
+    public void run() {
 
         int selection = -1;
         while (selection != 0) {
@@ -121,14 +121,38 @@ public class TenmoCLI {
     /**
      * Menu to allow user to pay another user.
      */
-    //Todo: Validation for valid user ID. Validation for valid user amount.
-    private void makePaymentMenu(){
+    private void makePaymentMenu() {
         User[] users = userDao.findAll();
-        for(User user: users){
-            System.out.printf("ID: %s    Name: %s\n", user.getId(), user.getUsername());
+
+        //Display All Users
+        for (User user : users) {
+            String info = String.format("ID: %s   Name: %s", user.getId(), user.getUsername());
+            consoleService.display(info);
         }
+
         int targetUserId = consoleService.promptForSelection("What is the ID of the person you want to pay?");
+
+        //Validate user Id
+        if (!isValidUserId(targetUserId)) {
+            consoleService.display("Invalid User ID. Returning to previous menu.");
+            return;
+        }
+
+        //Make sure user is not trying to pay themselves
+        if (userDao.findOwnUser().getId() == targetUserId) {
+            consoleService.display("Cannot make payment to self. Returning to previous menu.");
+            return;
+        }
+
+
         BigDecimal amount = consoleService.promptForMoneySelection("How much do you want to pay?");
+
+        //Make sure amount provided by user is greater than zero.
+        if (amount.compareTo(BigDecimal.ZERO) < 1) {
+            consoleService.display("Invalid payment amount. Value must be greater than 0. Returning to previous menu.");
+            return;
+        }
+
         String memo = consoleService.promptForStringSelection("What memo (if any) do you want to give?");
         transactionDao.makePayment(targetUserId, amount, memo);
     }
@@ -136,14 +160,41 @@ public class TenmoCLI {
     /**
      * Menu for user to request a payment from another user.
      */
-    //Todo: Validation for valid user ID. Validation for valid user amount.
-    private void requestPaymentMenu(){
+    private void requestPaymentMenu() {
+
         User[] users = userDao.findAll();
-        for(User user: users){
-            System.out.printf("ID: %s   Name: %s\n", user.getId(), user.getUsername());
+
+        //Display All Users
+        for (User user : users) {
+            String info = String.format("ID: %s   Name: %s", user.getId(), user.getUsername());
+            consoleService.display(info);
         }
+
+        //Request User Id from User
         int targetUserId = consoleService.promptForSelection("What is the ID of the person you are requesting from?");
+
+        //Validate user Id
+        if (!isValidUserId(targetUserId)) {
+            consoleService.display("Invalid User ID. Returning to previous menu.");
+            return;
+        }
+
+        //Make sure user is not trying to pay themselves
+        if (userDao.findOwnUser().getId() == targetUserId) {
+            consoleService.display("Cannot make payment to self. Returning to previous menu.");
+            return;
+        }
+
+        //Get payment amount
         BigDecimal amount = consoleService.promptForMoneySelection("How much do you want to request?");
+
+        //Make sure amount provided by user is greater than zero.
+        if (amount.compareTo(BigDecimal.ZERO) < 1) {
+            consoleService.display("Invalid payment amount. Value must be greater than 0. Returning to previous menu.");
+            return;
+        }
+
+        //Get user memo
         String memo = consoleService.promptForStringSelection("What memo (if any) do you want to give?");
         transactionDao.requestPayment(targetUserId, amount, memo);
     }
@@ -152,30 +203,41 @@ public class TenmoCLI {
     /**
      * Menu allowing user to accept or reject requests awaiting their decision.
      */
-    //Todo: add validation for which options the user can select
     //choose whether to accept or reject a request sent to me
-    private void acceptOrRejectPendingRequest(){
-        Transaction[] transactions= viewPendingRequests();
-        if(transactions.length>0) {
+    private void acceptOrRejectPendingRequest() {
+        Transaction[] transactions = viewPendingRequests();
+        if (transactions.length > 0) {
+
             int transactionId = consoleService.promptForSelection("What transaction ID do you want to accept/reject?");
-            boolean islooping = true;
-            while (islooping) {
-                String newStatus = null;
-                //did it this way because it's probably easier for a user to understand
-                System.out.println();
-                int statusRequest = consoleService.promptForSelection("Do you want to accept(1) or reject(2) the request?");
-                if (statusRequest == 1) {
-                    newStatus = "accepted";
-                    transactionDao.acceptOrRejectPendingTransaction(transactionId, newStatus);
-                    islooping = false;
-                } else if (statusRequest == 2) {
-                    newStatus = "rejected";
-                    transactionDao.acceptOrRejectPendingTransaction(transactionId, newStatus);
-                    islooping = false;
-                } else {
-                    System.out.println();
-                    System.out.println("Please enter (1) for accept or (2) for reject");
+            if (isValidTransactionNumber(transactions, transactionId)) {
+
+                boolean islooping = true;
+                while (islooping) {
+
+                    String newStatus = null;
+                    //did it this way because it's probably easier for a user to understand
+                    consoleService.display("");
+
+                    int statusRequest = consoleService.promptForSelection("Please enter (1) to accept the request, (2) " +
+                            "to reject the request, or (3) to return to the previous menu,");
+                    if (statusRequest == 1) {
+                        newStatus = "accepted";
+                        transactionDao.acceptOrRejectPendingTransaction(transactionId, newStatus);
+                        islooping = false;
+                    } else if (statusRequest == 2) {
+                        newStatus = "rejected";
+                        transactionDao.acceptOrRejectPendingTransaction(transactionId, newStatus);
+                        islooping = false;
+                    } else if (statusRequest == 3) {
+                        consoleService.display("Approval aborted. Returning to previous menu.");
+                    } else {
+                        System.out.println();
+                        System.out.println("Invalid selection. Please enter a valid integer.");
+                    }
                 }
+
+            } else {
+                consoleService.display("Invalid transaction ID. Returning to previous menu.");
             }
         } else {
             System.out.println();
@@ -186,16 +248,28 @@ public class TenmoCLI {
     /**
      * Helper method to print all transactions that the user has been a part of as either the sender or receiver.
      */
-    private void viewTransactionHistory(){
+    private void viewTransactionHistory() {
+
         User me = userDao.findOwnUser();
         Transaction[] transactions = transactionDao.getTransactionHistory(me.getId());
-        for(Transaction transaction: transactions){
-            int id = transaction.getId();
-            BigDecimal amount = transaction.getAmount();
-            int senderId = transaction.getSenderId();
-            int receiverId = transaction.getReceiverId();
-            String memo = transaction.getMemo();
-            System.out.printf("Transaction ID: %s   Transaction amount: $%.2f   Sender ID: %s    ReceiverID: %s    Memo: %s\n",id,amount,senderId,receiverId,memo);
+
+        for (Transaction transaction : transactions) {
+
+            User receiver = userDao.findUserById(transaction.getReceiverId());
+            User sender = userDao.findUserById(transaction.getSenderId());
+
+            String memo = (transaction.getMemo() == null || transaction.getMemo().length() < 1) ? "<No Memo>" : transaction.getMemo();
+            String info = String.format("Transaction ID: %s   Transaction amount: $%.2f   Sender ID: %s   Sender Name: %s" +
+                            "   Receiver ID: %s  Receiver Name: %s \nMemo: %s\n",
+                    transaction.getId(),
+                    transaction.getAmount(),
+                    transaction.getSenderId(),
+                    sender.getUsername(),
+                    transaction.getReceiverId(),
+                    receiver.getUsername(),
+                    memo);
+
+            consoleService.display(info);
         }
     }
 
@@ -204,19 +278,57 @@ public class TenmoCLI {
      *
      * @return An array of Transactions containing all requests awaiting user decision.
      */
-    private Transaction[] viewPendingRequests(){
+    private Transaction[] viewPendingRequests() {
+
         User me = userDao.findOwnUser();
         Transaction[] transactions = transactionDao.getOwnTransactions(me.getId());
-        for(Transaction transaction: transactions){
-            if (transaction.getSenderId()==me.getId()){
-                int id = transaction.getId();
-                BigDecimal amount = transaction.getAmount();
-                int senderId = transaction.getSenderId();
-                String memo = transaction.getMemo();
-                System.out.printf("Transaction ID: %s   Transaction amount: $%.2f   Requester ID: %s    Memo: %s\n",id,amount,senderId,memo);
+
+        for (Transaction transaction : transactions) {
+
+            if (transaction.getSenderId() == me.getId()) {
+
+                User receiver = userDao.findUserById(transaction.getReceiverId());
+                String memo = (transaction.getMemo() == null || transaction.getMemo().length() < 1) ? "<No Memo>" : transaction.getMemo();
+                String info = String.format("Transaction ID: %s   Transaction amount: $%.2f   Requester ID: %s   Requester Name: %s  \nMemo: %s\n",
+                        transaction.getId(),
+                        transaction.getAmount(),
+                        transaction.getReceiverId(),
+                        receiver.getUsername(),
+                        memo);
+
+                consoleService.display(info);
             }
         }
         return transactions;
+    }
+
+    /**
+     * Helper method to determine if user specified transaction ID is in the list of Transaction provided.
+     *
+     * @param transactions the list of Transactions
+     * @param option       the Transaction id to check
+     * @return true if the Transaction id is in the list of Transaction, false otherwise
+     */
+    private boolean isValidTransactionNumber(Transaction[] transactions, int option) {
+        for (Transaction transaction : transactions) {
+            if (transaction.getId() == option) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Helper method to determine if the user specified user ID exists.
+     *
+     * @param userId the User ID to check
+     * @return true if user exists, false otherwise
+     */
+    private boolean isValidUserId(int userId) {
+        if (userDao.findUserById(userId) == null) {
+            return false;
+        } else {
+            return true;
+        }
+
     }
 
 

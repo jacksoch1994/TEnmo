@@ -39,9 +39,10 @@ public class UserDao {
             ResponseEntity<User[]> response = TEMPLATE.exchange(API_BASE_USER_URL,
                     HttpMethod.GET, makeAuthEntity(), User[].class);
             users = response.getBody();
-        } catch (RestClientResponseException | ResourceAccessException e) {
-//                BasicLogger.log(e.getMessage());
-            System.out.println("something went wrong");
+        } catch (RestClientResponseException e) {
+            return null;
+        } catch (ResourceAccessException e) {
+            System.out.println("Error accessing User resource.");
         }
         return users;
     }
@@ -52,9 +53,10 @@ public class UserDao {
             ResponseEntity<User> response = TEMPLATE.exchange(API_BASE_USER_URL + id,
                     HttpMethod.GET, makeAuthEntity(), User.class);
             user = response.getBody();
-        } catch (RestClientResponseException | ResourceAccessException e) {
-//                BasicLogger.log(e.getMessage());
-            System.out.println(e.getMessage());
+        } catch (RestClientResponseException e) {
+            return null;
+        } catch (ResourceAccessException e) {
+            System.out.println("Error accessing User resource.");
         }
         return user;
     }
@@ -65,9 +67,10 @@ public class UserDao {
             ResponseEntity<User> response = TEMPLATE.exchange(API_BASE_USER_URL + "me",
                     HttpMethod.GET, makeAuthEntity(), User.class);
             user = response.getBody();
-        }catch (RestClientResponseException | ResourceAccessException e) {
-//                BasicLogger.log(e.getMessage());
-            System.out.println(e.getMessage());
+        } catch (RestClientResponseException e) {
+            return null;
+        } catch (ResourceAccessException e) {
+            System.out.println("Error accessing User resource.");
         }
         return user;
 

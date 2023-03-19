@@ -1,5 +1,7 @@
 package com.techelevator.tenmo.services;
 
+import com.techelevator.tenmo.model.Transaction;
+
 import java.math.BigDecimal;
 import java.util.Scanner;
 
@@ -139,4 +141,5 @@ public class ConsoleService {
     public void display(String message) {
         System.out.println(message);
     }
+
 }
