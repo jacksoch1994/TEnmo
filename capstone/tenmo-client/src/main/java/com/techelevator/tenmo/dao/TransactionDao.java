@@ -41,10 +41,14 @@ public class TransactionDao {
                     HttpMethod.GET,
                     makeAuthEntity(),
                     Transaction[].class);
-        } catch (RestClientResponseException | ResourceAccessException e){
-            System.out.println(e.getMessage());
+        } catch (RestClientResponseException e) {
+            //return empty array if exception is received
+            return new Transaction[0];
+        } catch (ResourceAccessException e) {
+            System.out.println("Error accessing Transaction resource.");
         }
-        return transactions.getBody();
+        //Return empty array if response is null
+        return (transactions == null) ? new Transaction[0] : transactions.getBody();
     }
 
 
@@ -57,10 +61,14 @@ public class TransactionDao {
                     HttpMethod.GET,
                     makeAuthEntity(),
                     Transaction[].class);
-        } catch (RestClientResponseException | ResourceAccessException e){
-            System.out.println(e.getMessage());
+        } catch (RestClientResponseException e) {
+            //return empty array if exception is received
+            return new Transaction[0];
+        } catch (ResourceAccessException e) {
+            System.out.println("Error accessing Transaction resource.");
         }
-        return transactions.getBody();
+        //Return empty array if response is null
+        return (transactions == null) ? new Transaction[0] : transactions.getBody();
     }
 
     public boolean makePayment(int targetUserId, BigDecimal amount, String memo){
@@ -105,8 +113,11 @@ public class TransactionDao {
                     Void.class);
             successful = true;
 
-        } catch (RestClientResponseException | ResourceAccessException e) {
-            System.out.println(e.getMessage());
+        } catch (RestClientResponseException e) {
+            //return empty array if exception is received
+            System.out.println(e.getRawStatusCode());
+        } catch (ResourceAccessException e) {
+            System.out.println("Error accessing Transaction resource.");
         }
         return successful;
     }
@@ -129,8 +140,11 @@ public class TransactionDao {
                     entity,
                     Void.class);
             successful = true;
-        } catch (RestClientResponseException | ResourceAccessException e) {
-            System.out.println(e.getMessage());
+        } catch (RestClientResponseException e) {
+            //return empty array if exception is received
+            System.out.println(e.getRawStatusCode());
+        } catch (ResourceAccessException e) {
+            System.out.println("Error accessing Transaction resource.");
         }
         return successful;
     }
