@@ -33,7 +33,8 @@ public class JdbcTransactionDao implements TransactionDao{
     public List<Transaction> listTransactionsByUserId(int userId) {
 
         List<Transaction> transactions = new ArrayList<>();
-        String sql = "SELECT * FROM money_transaction WHERE sender_id=? OR receiver_id=?;";
+        String sql = "SELECT transaction_id, sender_id, receiver_id, status, is_request, amount, memo, transaction_time " +
+                "FROM money_transaction WHERE sender_id=? OR receiver_id=?;";
         SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, userId, userId);
 
         while(rs.next()){
@@ -47,7 +48,8 @@ public class JdbcTransactionDao implements TransactionDao{
     @Override
     public List<Transaction> listTransactionsByStatus(String status) {
         List<Transaction> transactions = new ArrayList<>();
-        String sql = "SELECT * FROM money_transaction WHERE status = ?;";
+        String sql = "SELECT transaction_id, sender_id, receiver_id, status, is_request, amount, memo, transaction_time " +
+                "FROM money_transaction WHERE status = ?;";
         SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, status);
 
         while(rs.next()){
@@ -61,7 +63,8 @@ public class JdbcTransactionDao implements TransactionDao{
     @Override
     public List<Transaction> listTransactionsByUserIdAndStatus(int userId, String status) {
         List<Transaction> transactions = new ArrayList<>();
-        String sql = "SELECT * FROM money_transaction WHERE (sender_id = ? OR receiver_id = ?) AND status = ?;";
+        String sql = "SELECT transaction_id, sender_id, receiver_id, status, is_request, amount, memo, transaction_time " +
+                "FROM money_transaction WHERE (sender_id = ? OR receiver_id = ?) AND status = ?;";
         SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, userId, userId, status);
 
         while(rs.next()){
@@ -75,7 +78,8 @@ public class JdbcTransactionDao implements TransactionDao{
     @Override
     public List<Transaction> listTransactions() {
         List<Transaction> transactions = new ArrayList<>();
-        String sql = "SELECT * FROM money_transaction;";
+        String sql = "SELECT transaction_id, sender_id, receiver_id, status, is_request, amount, memo, transaction_time " +
+                "FROM money_transaction;";
         SqlRowSet rs = jdbcTemplate.queryForRowSet(sql);
 
         while(rs.next()){
@@ -88,7 +92,8 @@ public class JdbcTransactionDao implements TransactionDao{
 
     @Override
     public Transaction getTransaction(int transactionId) {
-        String sql = "SELECT * FROM money_transaction WHERE transaction_id=?;";
+        String sql = "SELECT transaction_id, sender_id, receiver_id, status, is_request, amount, memo, transaction_time " +
+                "FROM money_transaction WHERE transaction_id=?;";
         SqlRowSet result = jdbcTemplate.queryForRowSet(sql, transactionId);
         if(result.next()){
             return mapRowToTransaction(result);

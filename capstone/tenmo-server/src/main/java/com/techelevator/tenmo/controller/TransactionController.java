@@ -87,7 +87,7 @@ public class TransactionController {
         if (transaction == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown Transaction");
 
         //Only allow the user to view the Transaction if they are the sender/receiever, or an admin
-        if(transactionBelongsToUser(transaction, principal) && !isAdmin(principal)){
+        if(!transactionBelongsToUser(transaction, principal) && !isAdmin(principal)){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action: Cannot view other users' Transactions.");
         }
 
@@ -150,8 +150,8 @@ public class TransactionController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown Transaction");
         }
 
-        //Check to see if user is the receiver for this Transaction.
-        if (transaction.getReceiverId() != userDao.findIdByUsername(principal.getName())) {
+        //Check to see if user is the sender for this Transaction.
+        if (transaction.getSenderId() != userDao.findIdByUsername(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unauthorized. Cannot confirm another user's incoming request.");
         }
 

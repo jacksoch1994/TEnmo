@@ -8,7 +8,7 @@ public class TransactionStatusDto {
     ########################################   Attributes   ##########################################
      */
 
-    @NotBlank
+    @NotBlank(message="Status to update Transaction must be specified. Status should be either \"accepted\" or \"rejected\".")
     private String status;
 
     /*

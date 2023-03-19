@@ -3,8 +3,10 @@ package com.techelevator.tenmo.controller;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.User;
 import com.techelevator.tenmo.model.Wallet;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -45,7 +47,11 @@ public class UserController {
 
     @GetMapping(path="/{id}")
     public User findUserById(@PathVariable int id){
-        return dao.getUserById(id);
+        User user = dao.getUserById(id);
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown User");
+        }
+        return user;
     }
 
     @GetMapping(path="/me")

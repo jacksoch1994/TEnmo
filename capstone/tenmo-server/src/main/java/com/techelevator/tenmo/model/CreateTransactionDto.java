@@ -13,13 +13,13 @@ public class CreateTransactionDto {
      */
 
     @JsonProperty("target-user")
-    @Positive
+    @Positive(message="Invalid User ID")
     private int targetUserId;
-    @Positive
+    @Positive(message="Transaction amount must be positive.")
     private BigDecimal amount;
     private String memo;
     @JsonProperty("transaction-type")
-    @NotBlank
+    @NotBlank(message="The type of transaction must be specified.")
     private String type;
 
     /*

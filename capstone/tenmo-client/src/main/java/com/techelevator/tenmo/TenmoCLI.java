@@ -68,9 +68,6 @@ public class TenmoCLI {
                 case (4):
                     acceptOrRejectPendingRequest();
                     break;
-//                case (5):
-//                    acceptOrRejectPendingRequest();
-//                    break;
                 case (5):
                     viewTransactionHistory();
                     break;
@@ -147,6 +144,7 @@ public class TenmoCLI {
         return transactions;
     }
 
+    //Todo: add validation for which options the user can select
     //choose whether to accept or reject a request sent to me
     private void acceptOrRejectPendingRequest(){
         Transaction[] transactions= viewPendingRequests();

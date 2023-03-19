@@ -36,7 +36,7 @@ public class JdbcWalletDao implements WalletDao{
     @Override
     public List<Wallet> listWallets() {
         List<Wallet> wallets = new ArrayList<>();
-        String sql = "SELECT * FROM user_wallet;";
+        String sql = "SELECT wallet_id, user_id, balance FROM user_wallet;";
         SqlRowSet rs = jdbcTemplate.queryForRowSet(sql);
 
         while(rs.next()){
@@ -50,7 +50,7 @@ public class JdbcWalletDao implements WalletDao{
     public Wallet getWallet(int walletId) {
         Wallet wallet = null;
 
-        String sql = "SELECT * FROM user_wallet WHERE wallet_id = ?;";
+        String sql = "SELECT wallet_id, user_id, balance FROM user_wallet WHERE wallet_id = ?;";
         SqlRowSet rows = jdbcTemplate.queryForRowSet(sql, walletId);
 
         if (rows.next()) {
@@ -64,7 +64,7 @@ public class JdbcWalletDao implements WalletDao{
     public Wallet getWalletByUser(int userId) {
         Wallet wallet = null;
 
-        String sql = "SELECT * FROM user_wallet WHERE user_id = ?;";
+        String sql = "SELECT wallet_id, user_id, balance FROM user_wallet WHERE user_id = ?;";
         SqlRowSet rows = jdbcTemplate.queryForRowSet(sql, userId);
 
         if (rows.next()) {

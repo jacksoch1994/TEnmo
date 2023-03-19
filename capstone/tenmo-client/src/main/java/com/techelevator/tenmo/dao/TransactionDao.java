@@ -10,8 +10,6 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 public class TransactionDao {
     private static final String API_BASE_TRANSACTION_URL = "http://localhost:8080/transactions/";
@@ -72,7 +70,6 @@ public class TransactionDao {
 
         } catch (RestClientResponseException | ResourceAccessException e) {
             System.out.println(e.getMessage());
-//            BasicLogger.log(e.getMessage());
         }
         return successful;
     }
@@ -97,7 +94,6 @@ public class TransactionDao {
 
         } catch (RestClientResponseException | ResourceAccessException e) {
             System.out.println(e.getMessage());
-//            BasicLogger.log(e.getMessage());
         }
         return successful;
     }
@@ -120,9 +116,8 @@ public class TransactionDao {
                     entity,
                     Void.class);
             successful = true;
-        }catch (RestClientResponseException | ResourceAccessException e) {
+        } catch (RestClientResponseException | ResourceAccessException e) {
             System.out.println(e.getMessage());
-//            BasicLogger.log(e.getMessage());
         }
         return successful;
     }
