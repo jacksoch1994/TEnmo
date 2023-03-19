@@ -9,12 +9,24 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
-
 public class UserDao {
+
+    /*
+    ####################################### Constant Values ##########################################
+     */
+
     private static final String API_BASE_USER_URL = "http://localhost:8080/users/";
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate TEMPLATE = new RestTemplate();
+
+    /*
+    ########################################   Attributes   ##########################################
+     */
+
     private String authToken = null;
+
+    /*
+    ###########################################  Methods  ############################################
+     */
 
     public void setAuthToken(String authToken) {
         this.authToken = authToken;
@@ -24,7 +36,7 @@ public class UserDao {
         User[] users = null;
 
         try {
-            ResponseEntity<User[]> response = restTemplate.exchange(API_BASE_USER_URL,
+            ResponseEntity<User[]> response = TEMPLATE.exchange(API_BASE_USER_URL,
                     HttpMethod.GET, makeAuthEntity(), User[].class);
             users = response.getBody();
         } catch (RestClientResponseException | ResourceAccessException e) {
@@ -37,7 +49,7 @@ public class UserDao {
     public User findUserById(int id){
         User user = null;
         try {
-            ResponseEntity<User> response = restTemplate.exchange(API_BASE_USER_URL + id,
+            ResponseEntity<User> response = TEMPLATE.exchange(API_BASE_USER_URL + id,
                     HttpMethod.GET, makeAuthEntity(), User.class);
             user = response.getBody();
         } catch (RestClientResponseException | ResourceAccessException e) {
@@ -50,7 +62,7 @@ public class UserDao {
     public User findOwnUser(){
         User user = null;
         try{
-            ResponseEntity<User> response = restTemplate.exchange(API_BASE_USER_URL + "me",
+            ResponseEntity<User> response = TEMPLATE.exchange(API_BASE_USER_URL + "me",
                     HttpMethod.GET, makeAuthEntity(), User.class);
             user = response.getBody();
         }catch (RestClientResponseException | ResourceAccessException e) {

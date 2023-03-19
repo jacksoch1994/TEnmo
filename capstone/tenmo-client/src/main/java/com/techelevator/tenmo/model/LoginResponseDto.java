@@ -10,7 +10,7 @@ public class LoginResponseDto {
     private User user;
 
     /*
-    ########################################   Constructor   ##########################################
+    #######################################   Constructors   #########################################
     */
 
     public LoginResponseDto(String token, User user) {

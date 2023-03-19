@@ -1,7 +1,6 @@
 package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.CreateTransactionDto;
-import com.techelevator.tenmo.model.RegisterUser;
 import com.techelevator.tenmo.model.Transaction;
 import com.techelevator.tenmo.model.UpdateTransactionDto;
 import org.springframework.http.*;
@@ -12,9 +11,23 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 
 public class TransactionDao {
+
+    /*
+    ####################################### Constant Values ##########################################
+     */
+
     private static final String API_BASE_TRANSACTION_URL = "http://localhost:8080/transactions/";
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate TEMPLATE = new RestTemplate();
+
+    /*
+    ########################################   Attributes   ##########################################
+     */
+
     private String authToken = null;
+
+    /*
+    ###########################################  Methods  ############################################
+     */
 
     public void setAuthToken(String token) {
         authToken = token;
@@ -23,7 +36,7 @@ public class TransactionDao {
     public Transaction[] getTransactionHistory(int ownId){
         ResponseEntity<Transaction[]> transactions=null;
         try {
-            transactions = restTemplate.exchange(
+            transactions = TEMPLATE.exchange(
                     API_BASE_TRANSACTION_URL + "?user-id=" + ownId,
                     HttpMethod.GET,
                     makeAuthEntity(),
@@ -39,7 +52,7 @@ public class TransactionDao {
     public Transaction[] getOwnTransactions(int ownId){
         ResponseEntity<Transaction[]> transactions=null;
         try {
-            transactions = restTemplate.exchange(
+            transactions = TEMPLATE.exchange(
                     API_BASE_TRANSACTION_URL + "?status=pending&user-id=" + ownId,
                     HttpMethod.GET,
                     makeAuthEntity(),
@@ -61,7 +74,7 @@ public class TransactionDao {
         boolean successful = false;
 
         try {
-            restTemplate.exchange(
+            TEMPLATE.exchange(
                     API_BASE_TRANSACTION_URL,
                     HttpMethod.POST,
                     entity,
@@ -85,7 +98,7 @@ public class TransactionDao {
         boolean successful = false;
 
         try {
-            restTemplate.exchange(
+            TEMPLATE.exchange(
                     API_BASE_TRANSACTION_URL,
                     HttpMethod.POST,
                     entity,
@@ -110,7 +123,7 @@ public class TransactionDao {
         boolean successful = false;
 
         try {
-            restTemplate.exchange(
+            TEMPLATE.exchange(
                     API_BASE_TRANSACTION_URL + transactionToUpdate,
                     HttpMethod.PUT,
                     entity,

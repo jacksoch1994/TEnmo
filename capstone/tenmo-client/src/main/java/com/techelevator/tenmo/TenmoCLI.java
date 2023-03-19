@@ -26,6 +26,9 @@ public class TenmoCLI {
         cli.run();
     }
 
+    /**
+     * Run Tenmo CLI. Display initial Main Menu for login and process user input.
+     */
     public void run(){
 
         int selection = -1;
@@ -49,6 +52,9 @@ public class TenmoCLI {
 
     }
 
+    /**
+     * Display Main menu and process user input for selection.
+     */
     private void mainMenu() {
         int selection = -1;
         consoleService.balanceDisplay(walletDao.getUserWallet().getBalance());
@@ -80,6 +86,9 @@ public class TenmoCLI {
         }
     }
 
+    /**
+     * Prompt user for login information and if login is successful, route them to the main menu.
+     */
     private void loginMenu() {
         String username = consoleService.usernameEnterScreen();
         String password = consoleService.passwordEnterScreen();
@@ -95,6 +104,9 @@ public class TenmoCLI {
         }
     }
 
+    /**
+     * Prompt user to register by creating a new account. Returns the user to the previous menu.
+     */
     private void registerMenu() {
         String username = consoleService.usernameEnterScreen();
         String password = consoleService.passwordEnterScreen();
@@ -106,6 +118,10 @@ public class TenmoCLI {
         }
     }
 
+    /**
+     * Menu to allow user to pay another user.
+     */
+    //Todo: Validation for valid user ID. Validation for valid user amount.
     private void makePaymentMenu(){
         User[] users = userDao.findAll();
         for(User user: users){
@@ -117,6 +133,10 @@ public class TenmoCLI {
         transactionDao.makePayment(targetUserId, amount, memo);
     }
 
+    /**
+     * Menu for user to request a payment from another user.
+     */
+    //Todo: Validation for valid user ID. Validation for valid user amount.
     private void requestPaymentMenu(){
         User[] users = userDao.findAll();
         for(User user: users){
@@ -128,22 +148,10 @@ public class TenmoCLI {
         transactionDao.requestPayment(targetUserId, amount, memo);
     }
 
-    //view only requests for money sent to me
-    private Transaction[] viewPendingRequests(){
-        User me = userDao.findOwnUser();
-        Transaction[] transactions = transactionDao.getOwnTransactions(me.getId());
-        for(Transaction transaction: transactions){
-            if (transaction.getSenderId()==me.getId()){
-                int id = transaction.getId();
-                BigDecimal amount = transaction.getAmount();
-                int senderId = transaction.getSenderId();
-                String memo = transaction.getMemo();
-                System.out.printf("Transaction ID: %s   Transaction amount: $%.2f   Requester ID: %s    Memo: %s\n",id,amount,senderId,memo);
-            }
-        }
-        return transactions;
-    }
 
+    /**
+     * Menu allowing user to accept or reject requests awaiting their decision.
+     */
     //Todo: add validation for which options the user can select
     //choose whether to accept or reject a request sent to me
     private void acceptOrRejectPendingRequest(){
@@ -175,6 +183,9 @@ public class TenmoCLI {
         }
     }
 
+    /**
+     * Helper method to print all transactions that the user has been a part of as either the sender or receiver.
+     */
     private void viewTransactionHistory(){
         User me = userDao.findOwnUser();
         Transaction[] transactions = transactionDao.getTransactionHistory(me.getId());
@@ -186,6 +197,26 @@ public class TenmoCLI {
             String memo = transaction.getMemo();
             System.out.printf("Transaction ID: %s   Transaction amount: $%.2f   Sender ID: %s    ReceiverID: %s    Memo: %s\n",id,amount,senderId,receiverId,memo);
         }
+    }
+
+    /**
+     * Helper method to obtain pending requests where the user is the recipient of the request.
+     *
+     * @return An array of Transactions containing all requests awaiting user decision.
+     */
+    private Transaction[] viewPendingRequests(){
+        User me = userDao.findOwnUser();
+        Transaction[] transactions = transactionDao.getOwnTransactions(me.getId());
+        for(Transaction transaction: transactions){
+            if (transaction.getSenderId()==me.getId()){
+                int id = transaction.getId();
+                BigDecimal amount = transaction.getAmount();
+                int senderId = transaction.getSenderId();
+                String memo = transaction.getMemo();
+                System.out.printf("Transaction ID: %s   Transaction amount: $%.2f   Requester ID: %s    Memo: %s\n",id,amount,senderId,memo);
+            }
+        }
+        return transactions;
     }
 
 

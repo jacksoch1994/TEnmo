@@ -9,8 +9,17 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 public class LoginDao {
+
+    /*
+    ####################################### Constant Values ##########################################
+     */
+
     private static final String API_BASE_URL = "http://localhost:8080/";
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate TEMPLATE = new RestTemplate();
+
+    /*
+    ###########################################  Methods  ############################################
+     */
 
     public String login(String username, String password) {
         LoginDto loginDto = new LoginDto();
@@ -23,7 +32,7 @@ public class LoginDao {
 
         String token = null;
         try {
-            ResponseEntity<LoginResponseDto> response = restTemplate.exchange(
+            ResponseEntity<LoginResponseDto> response = TEMPLATE.exchange(
                     API_BASE_URL + "login",
                     HttpMethod.POST,
                     entity,
@@ -51,7 +60,7 @@ public class LoginDao {
         boolean successful = false;
 
         try {
-            restTemplate.exchange(
+            TEMPLATE.exchange(
                     API_BASE_URL + "register",
                     HttpMethod.POST,
                     entity,
