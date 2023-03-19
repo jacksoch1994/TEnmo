@@ -41,9 +41,10 @@ public class LoginDao {
             if (body != null) {
                 token = body.getToken();
             }
-        } catch (RestClientResponseException | ResourceAccessException e) {
-            System.out.println("something went wrong");
-//            BasicLogger.log(e.getMessage());
+        } catch (RestClientResponseException e) {
+            System.out.println(e.getRawStatusCode());
+        } catch (ResourceAccessException e) {
+            System.out.println("Error accessing Login resource.");
         }
         return token;
     }
@@ -68,9 +69,10 @@ public class LoginDao {
 
             successful = true;
 
-        } catch (RestClientResponseException | ResourceAccessException e) {
-            System.out.println("something went wrong");
-//            BasicLogger.log(e.getMessage());
+        } catch (RestClientResponseException e) {
+            System.out.println(e.getRawStatusCode());
+        } catch (ResourceAccessException e) {
+            System.out.println("Error accessing Login resource.");
         }
 
         return successful;

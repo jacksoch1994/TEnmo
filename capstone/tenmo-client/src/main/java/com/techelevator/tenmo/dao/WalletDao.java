@@ -39,9 +39,10 @@ public class WalletDao {
             ResponseEntity<Wallet> response = TEMPLATE.exchange(API_BASE_WALLET_URL + "me",
                     HttpMethod.GET, makeAuthEntity(), Wallet.class);
             wallet = response.getBody();
-        } catch (RestClientResponseException | ResourceAccessException e) {
-//                BasicLogger.log(e.getMessage());
-            System.out.println("something went wrong");
+        } catch (RestClientResponseException e) {
+            System.out.println(e.getRawStatusCode());
+        } catch (ResourceAccessException e) {
+            System.out.println("Error accessing Wallet Resource.");
         }
         return wallet;
     }
