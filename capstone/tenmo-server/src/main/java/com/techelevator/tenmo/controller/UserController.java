@@ -57,7 +57,6 @@ public class UserController {
     @GetMapping(path="/me")
     public User getSelf(Principal principal){
         int currentUserId = dao.findIdByUsername(principal.getName());
-        //Todo check for null in userWallet
         return dao.getUserById(currentUserId);
     }
 }
