@@ -34,7 +34,7 @@ public class TenmoCLI {
         int selection = -1;
         while (selection != 0) {
             consoleService.loginMenu();
-            selection = consoleService.promptForSelection("Please select an item from the list above:");
+            selection = consoleService.promptForSelection("\nPlease select an item from the list above:");
             switch (selection) {
                 case (1):
                     loginMenu();
@@ -124,36 +124,45 @@ public class TenmoCLI {
     private void makePaymentMenu() {
         User[] users = userDao.findAll();
 
+        consoleService.banner();
+        consoleService.display("Users:\n");
+
         //Display All Users
         for (User user : users) {
             String info = String.format("ID: %s   Name: %s", user.getId(), user.getUsername());
             consoleService.display(info);
         }
 
-        int targetUserId = consoleService.promptForSelection("What is the ID of the person you want to pay?");
+        int targetUserId = consoleService.promptForSelection("\nPlease enter the ID of the User you wish to pay: ");
 
         //Validate user Id
         if (!isValidUserId(targetUserId)) {
-            consoleService.display("Invalid User ID. Returning to previous menu.");
+            consoleService.display("\nInvalid User ID. Returning to previous menu.");
             return;
         }
 
         //Make sure user is not trying to pay themselves
         if (userDao.findOwnUser().getId() == targetUserId) {
-            consoleService.display("Cannot make payment to self. Returning to previous menu.");
+            consoleService.display("\nCannot make payment to self. Returning to previous menu.");
             return;
         }
 
 
-        BigDecimal amount = consoleService.promptForMoneySelection("How much do you want to pay?");
+        BigDecimal amount = consoleService.promptForMoneySelection("\nPlease enter the amount of money you wish to pay: ");
 
         //Make sure amount provided by user is greater than zero.
         if (amount.compareTo(BigDecimal.ZERO) < 1) {
-            consoleService.display("Invalid payment amount. Value must be greater than 0. Returning to previous menu.");
+            consoleService.display("\nInvalid payment amount. Value must be greater than 0. Returning to previous menu.");
             return;
         }
 
         String memo = consoleService.promptForStringSelection("What memo (if any) do you want to give?");
+
+        if (walletDao.getUserWallet().getBalance().compareTo(amount) < 1) {
+            consoleService.display("\nYou do not have enough funds in your wallet to complete this transaction. Returning to previous menu.");
+            return;
+        }
+
         transactionDao.makePayment(targetUserId, amount, memo);
     }
 

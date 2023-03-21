@@ -21,7 +21,7 @@ public class ConsoleService {
      * Prints a line of hyphens to the screen.
      */
     public void banner(){
-        System.out.println("-------------------------------------------");
+        System.out.println("\n-------------------------------------------\n");
     }
 
     /**
@@ -51,7 +51,7 @@ public class ConsoleService {
      */
     public void balanceDisplay(BigDecimal balance){
         banner();
-        System.out.printf("Your current account balance is: $%.2f", balance);
+        System.out.printf("Your current account balance is: $%.2f\n", balance);
     }
 
     /**
