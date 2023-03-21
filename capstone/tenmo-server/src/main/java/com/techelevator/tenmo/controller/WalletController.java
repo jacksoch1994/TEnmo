@@ -40,6 +40,7 @@ public class WalletController {
    ########################################  API Endpoints  ##########################################
     */
 
+    //ToDo: Restrict to admin only
     @GetMapping
     public List<WalletDto> list(@RequestParam(required = false, name = "user-id") Integer userId, Principal principal){
 
@@ -67,6 +68,7 @@ public class WalletController {
         return walletDtos;
     }
 
+    //ToDo: Restrict to admin only
     @GetMapping (path="/{id}")
     public WalletDto get(@PathVariable int id, Principal principal){
 
@@ -84,7 +86,6 @@ public class WalletController {
     public WalletDto userWallet(Principal principal) {
         int currentUserId = userDao.findIdByUsername(principal.getName());
         Wallet userWallet = walletDao.getWalletByUser(currentUserId);
-        //Todo check for null in userWallet
         return mapWalletToDto(userWallet);
     }
 
@@ -104,6 +105,7 @@ public class WalletController {
     }
 
     private boolean isAdmin(Principal principal) {
+        //Todo : use findByUsername in Dao
         int currentUserId=userDao.findIdByUsername(principal.getName());
         return userDao.getUserById(currentUserId).getAuthorities().contains(new Authority("ROLE_ADMIN"));
     }

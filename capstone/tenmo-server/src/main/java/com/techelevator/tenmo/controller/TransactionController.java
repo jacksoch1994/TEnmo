@@ -103,10 +103,10 @@ public class TransactionController {
 
         //Check to see if target user exists
         if(userDao.getUserById(dto.getTargetUserId()) == null){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown User.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown Recipient.");
         }
 
-        //Check to see if current user is trying to pay themself.
+        //Check to see if current user is trying to pay themselves.
         if(currentUserId == dto.getTargetUserId()){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Target user for transfer cannot match sending user.");
         }
@@ -138,6 +138,7 @@ public class TransactionController {
         return mapTransactionToDto(newTransaction);
     }
 
+    //Todo: Refactor to be "Patch" -- figure out how to change this in client
     @PutMapping("/{id}")
     public TransactionDto confirmRequest(@PathVariable int id,
                                          @Valid @RequestBody TransactionStatusDto status,
@@ -192,7 +193,8 @@ public class TransactionController {
 
         //If either wallet does not exists, throw an error
         if (sender == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown wallet for Sending Wallet.");
+            //Todo: Change description to match error
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Can't process request.");
         } else if (receiver == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown wallet for Receiving Wallet.");
         }
@@ -232,17 +234,20 @@ public class TransactionController {
         int senderId = transaction.getSenderId();
         int receiverId = transaction.getReceiverId();
 
+        //Todo: Send in wallets instead of ID
         //Get wallet Ids for each User
         int senderWalletId = walletDao.getWalletByUser(senderId).getId();
         int receiverWalletId = walletDao.getWalletByUser(receiverId).getId();
 
         //Check to see if sending wallet has sufficient funds
+        //Todo: Send in wallets instead of ID
         if (!canMakeWalletTransfer(senderWalletId, receiverWalletId, transaction.getAmount())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The wallet to transfer funds from has an " +
                     "insufficient balance to make payment.");
         }
 
         //Call DAO transfer balance method
+        //Todo: Catch potential exceptions and return appropriate HTTP status
         walletDao.transferBalance(senderWalletId, receiverWalletId, transaction.getAmount());
 
         //Update original transaction

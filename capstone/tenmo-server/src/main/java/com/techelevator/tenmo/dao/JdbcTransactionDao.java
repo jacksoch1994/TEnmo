@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+//ToDo: Error handling in Jdbc Templates
 @Component
 public class JdbcTransactionDao implements TransactionDao{
 

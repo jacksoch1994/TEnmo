@@ -73,7 +73,7 @@ public class AuthenticationController {
         if (!userDao.create(newUser.getUsername(), newUser.getPassword())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User registration failed.");
         }
-        Wallet wallet = new Wallet(1, userDao.findIdByUsername(newUser.getUsername()), BigDecimal.valueOf(1000.00));
+        Wallet wallet = new Wallet(-1, userDao.findIdByUsername(newUser.getUsername()), BigDecimal.valueOf(1000.00));
         walletDao.createWallet(wallet, userDao.findIdByUsername(newUser.getUsername()));
     }
 

@@ -74,6 +74,7 @@ public class JdbcWalletDao implements WalletDao{
         return wallet;
     }
 
+    //Todo: remove dao method since not being used and for security reasons
     @Override
     public Wallet updateWallet(Wallet updatedWallet, int walletId) {
 
@@ -90,6 +91,7 @@ public class JdbcWalletDao implements WalletDao{
     }
 
     @Override
+    //Todo: Remove true / false.
     public boolean transferBalance(int sendingWalletId, int receivingWalletId, BigDecimal transferAmount) {
         String sql = "UPDATE user_wallet \n" +
                 "SET balance = balance - ?\n" +
@@ -98,6 +100,7 @@ public class JdbcWalletDao implements WalletDao{
                 "SET balance = balance + ?\n" +
                 "WHERE wallet_id = ?;\n";
 
+        //Todo: Raise server errors -- false does not give enough information to determine what is going on ex.) WalletNotFoundException ex.) NotEnoughFundsException
         //If not enough money in sending wallet or wither wallet is null, return false
         if (getWallet(sendingWalletId) == null || getWallet(receivingWalletId) == null
                 || getWallet(sendingWalletId).getBalance().compareTo(transferAmount) < 0) {
@@ -105,8 +108,10 @@ public class JdbcWalletDao implements WalletDao{
         }
 
         try {
+            //Todo: Make sure this properly affects the proper number of rows (i.e. 2 rows) Should also throw exception and rollback.
             return jdbcTemplate.update(sql, transferAmount, sendingWalletId, transferAmount, receivingWalletId) > 0;
         } catch (DataAccessException e) {
+            //ToDo: Handle this error properly without false.
             return false;
         }
 
